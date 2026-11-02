@@ -18,13 +18,13 @@ csv_path = os.path.join(
     os.path.dirname(__file__),
     "..",
     "data",
-    "expanded",
+    "analytics",
     "product_segmentation_recommendations.csv",
 )
 
 df = pd.read_csv(csv_path)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "expanded")
+IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "analytics")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 plt.figure(figsize=(11, 7))

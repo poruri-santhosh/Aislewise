@@ -17,7 +17,7 @@ from data_loader import load_data
 
 df = load_data()
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "expanded")
+IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "analytics")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 fig, ax = plt.subplots(figsize=(10, 5))

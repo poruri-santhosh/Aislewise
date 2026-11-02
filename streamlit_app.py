@@ -11,8 +11,8 @@ import streamlit as st
 PROJECT_ROOT = Path(__file__).resolve().parent
 VISUALS_PATH = PROJECT_ROOT / "reports" / "visualisations"
 EDA_PATH = PROJECT_ROOT / "eda"
-EXPANDED_PATH = PROJECT_ROOT / "data" / "expanded"
-EXPANDED_MANIFEST = EXPANDED_PATH / "manifest.json"
+ANALYTICS_PATH = PROJECT_ROOT / "data" / "analytics"
+ANALYTICS_MANIFEST = ANALYTICS_PATH / "manifest.json"
 if str(EDA_PATH) not in sys.path:
     sys.path.insert(0, str(EDA_PATH))
 
@@ -60,11 +60,8 @@ def format_number(value: float) -> str:
 
 
 @st.cache_data
-
-
-@st.cache_data
-def load_expanded_snapshot(path: str, fingerprint: tuple[tuple[str, float], ...]) -> dict:
-    """Load the pre-aggregated, privacy-safe expanded analytics bundle."""
+def load_analytics_snapshot(path: str, fingerprint: tuple[tuple[str, float], ...]) -> dict:
+    """Load the pre-aggregated, privacy-safe analytics bundle."""
     del fingerprint
     root = Path(path)
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
@@ -198,27 +195,27 @@ def render_relationship_charts(data: pd.DataFrame) -> None:
 
 
 with st.sidebar:
-    st.header("Expanded analytics")
+    st.header("Aislewise analytics")
     st.caption("The dashboard uses the bundled, privacy-safe database snapshot.")
 
 try:
-    bundle_files = sorted(EXPANDED_PATH.glob("*.csv"))
+    bundle_files = sorted(ANALYTICS_PATH.glob("*.csv"))
     fingerprint = tuple(
         [(path.name, path.stat().st_mtime) for path in bundle_files]
-        + [("manifest.json", EXPANDED_MANIFEST.stat().st_mtime)]
+        + [("manifest.json", ANALYTICS_MANIFEST.stat().st_mtime)]
     )
-    expanded = load_expanded_snapshot(str(EXPANDED_PATH), fingerprint)
-    products = expanded["product_performance"].rename(
+    analytics_data = load_analytics_snapshot(str(ANALYTICS_PATH), fingerprint)
+    products = analytics_data["product_performance"].rename(
         columns={
             "rating": "average_rating",
             "traffic_event_count": "total_views",
         }
     )
     products["segment"] = products["segment"].astype(str)
-    if len(products) != int(expanded["manifest"]["product_rows"]):
-        raise ValueError("Expanded product rows do not match the dataset manifest.")
+    if len(products) != int(analytics_data["manifest"]["product_rows"]):
+        raise ValueError("Product rows do not match the dataset manifest.")
 except (OSError, KeyError, pd.errors.ParserError, ValueError, json.JSONDecodeError) as error:
-    st.error(f"Could not load the expanded analytics snapshot: {error}")
+    st.error(f"Could not load the Aislewise analytics snapshot: {error}")
     st.stop()
 
 with st.sidebar:
@@ -253,7 +250,7 @@ with st.sidebar:
     brand_options = sorted(products["brand"].dropna().astype(str).unique()) if "brand" in products else []
     selected_brands = st.multiselect("Brands", brand_options, default=brand_options)
     customer_segment_options = sorted(
-        expanded["customer_segments"]["customer_segment"].dropna().astype(str).unique()
+        analytics_data["customer_segments"]["customer_segment"].dropna().astype(str).unique()
     )
     selected_customer_segments = st.multiselect(
         "Customer segments",
@@ -261,7 +258,7 @@ with st.sidebar:
         default=customer_segment_options,
     )
     selected_date_range = None
-    order_dates = pd.to_datetime(expanded["orders_daily"]["order_date"], errors="coerce").dropna()
+    order_dates = pd.to_datetime(analytics_data["orders_daily"]["order_date"], errors="coerce").dropna()
     if not order_dates.empty:
         selected_date_range = st.date_input(
             "Order and traffic date range",
@@ -295,13 +292,13 @@ if selected_brands and "brand" in filtered_products:
 
 st.markdown('<p class="eyebrow">Aislewise · Product intelligence</p>', unsafe_allow_html=True)
 st.title("See the catalog from every angle.")
-manifest = expanded["manifest"]
+manifest = analytics_data["manifest"]
 st.caption(
     f"Dataset: {manifest['dataset_version']} · "
     f"{manifest['product_rows']:,} products · "
     f"{manifest['source_table_rows']['retail_traffic.fact_glance_views']:,} traffic events · "
     f"{manifest['source_table_rows']['retail_sales.fact_orders']:,} orders · "
-    f"{manifest['owner_reported_synthetic_addition_total']:,} recently added synthetic records. "
+    f"{manifest['observed_rows_across_extracted_tables']:,} source records across ten tables. "
     f"Extracted {manifest['extracted_at_utc']}. Traffic counts are events, not unique visitors."
 )
 
@@ -411,7 +408,7 @@ with products_tab:
 
 with evidence_tab:
     st.subheader("Generated visual reports")
-    st.caption("Charts are generated directly from the expanded analytical snapshot.")
+    st.caption("Charts are generated directly from the Aislewise analytics dataset.")
     report_images = [
         ("Product portfolio segments", "product_segments.png"),
         ("Category performance", "category_performance.png"),
@@ -422,24 +419,24 @@ with evidence_tab:
         ("Review ratings", "review_ratings.png"),
         ("Units by discount band", "discount_units.png"),
     ]
-    expanded_visual_dir = VISUALS_PATH / "expanded"
+    analytics_visual_dir = VISUALS_PATH / "analytics"
     for index in range(0, len(report_images), 2):
         image_columns = st.columns(2)
         for column, (title, filename) in zip(image_columns, report_images[index : index + 2]):
-            image_path = expanded_visual_dir / filename
+            image_path = analytics_visual_dir / filename
             with column:
                 st.markdown(f"**{title}**")
                 if image_path.is_file():
                     st.image(str(image_path), width="stretch")
                 else:
-                    st.info(f"Run `python eda/visualisations/expanded.py` to generate {filename}.")
+                    st.info(f"Run `python eda/visualisations/analytics.py` to generate {filename}.")
 
 with customers_tab:
     st.subheader("Customer purchase behavior by segment")
-    if expanded is None:
-        st.info("Customer-level aggregates are available in the expanded snapshot.")
+    if analytics_data is None:
+        st.info("Customer-level aggregates are available in the analytics snapshot.")
     else:
-        customer_data = expanded["customer_segments"]
+        customer_data = analytics_data["customer_segments"]
         if selected_customer_segments:
             customer_data = customer_data[
                 customer_data["customer_segment"].astype(str).isin(
@@ -482,10 +479,10 @@ with customers_tab:
 
 with sales_tab:
     st.subheader("Sales and orders")
-    if expanded is None:
-        st.info("Order and sales aggregates are available in the expanded snapshot.")
+    if analytics_data is None:
+        st.info("Order and sales aggregates are available in the analytics snapshot.")
     else:
-        order_data = expanded["orders_daily"].copy()
+        order_data = analytics_data["orders_daily"].copy()
         order_data["order_date"] = pd.to_datetime(order_data["order_date"])
         date_range = normalize_date_range(selected_date_range)
         if date_range:
@@ -530,10 +527,10 @@ with sales_tab:
 
 with traffic_tab:
     st.subheader("Recorded product traffic")
-    if expanded is None:
-        st.info("Traffic event aggregates are available in the expanded snapshot.")
+    if analytics_data is None:
+        st.info("Traffic event aggregates are available in the analytics snapshot.")
     else:
-        traffic_data = expanded["traffic_daily"].copy()
+        traffic_data = analytics_data["traffic_daily"].copy()
         traffic_data["traffic_date"] = pd.to_datetime(traffic_data["traffic_date"])
         date_range = normalize_date_range(selected_date_range)
         if date_range:
@@ -573,8 +570,8 @@ with traffic_tab:
 
 with inventory_tab:
     st.subheader("Inventory and stockout monitoring")
-    if expanded is None:
-        st.info("Inventory aggregates are available in the expanded snapshot.")
+    if analytics_data is None:
+        st.info("Inventory aggregates are available in the analytics snapshot.")
     else:
         inventory_data = filtered_products.copy()
         inventory_data["latest_inventory_units"] = pd.to_numeric(
@@ -591,7 +588,7 @@ with inventory_tab:
             "Products represented",
             format_number(len(inventory_data)),
         )
-        centers = expanded["inventory_by_center"].sort_values(
+        centers = analytics_data["inventory_by_center"].sort_values(
             "units_in_stock", ascending=False
         )
         st.bar_chart(centers.set_index("fc_name")[["units_in_stock"]])
@@ -603,14 +600,14 @@ with inventory_tab:
 
 with reviews_tab:
     st.subheader("Ratings and review coverage")
-    if expanded is None:
-        st.info("Expanded review aggregates are available in the database snapshot.")
+    if analytics_data is None:
+        st.info("Review aggregates are available in the analytics snapshot.")
     else:
         st.warning(
             "Review records are synthetic demo data. Reviewer identities and review text are "
             "excluded from this dashboard and published dataset."
         )
-        rating_data = expanded["review_rating_distribution"]
+        rating_data = analytics_data["review_rating_distribution"]
         st.bar_chart(rating_data, x="review_rating", y="review_count")
         review_products = filtered_products.loc[
             filtered_products["review_count"].gt(0),
@@ -626,10 +623,10 @@ with reviews_tab:
 
 with fulfillment_tab:
     st.subheader("Fulfillment center inventory footprint")
-    if expanded is None:
-        st.info("Fulfillment inventory aggregates are available in the expanded snapshot.")
+    if analytics_data is None:
+        st.info("Fulfillment inventory aggregates are available in the analytics snapshot.")
     else:
-        centers = expanded["inventory_by_center"].copy()
+        centers = analytics_data["inventory_by_center"].copy()
         if not centers.empty:
             centers["stockout_product_locations"] = pd.to_numeric(
                 centers["stockout_product_locations"], errors="coerce"
@@ -645,10 +642,10 @@ with fulfillment_tab:
 
 with quality_tab:
     st.subheader("Dataset quality and extraction manifest")
-    if expanded is None:
-        st.info("The expanded quality report is available with the expanded snapshot.")
+    if analytics_data is None:
+        st.info("The quality report is available with the analytics snapshot.")
     else:
-        quality = expanded["quality"]
+        quality = analytics_data["quality"]
         checks = pd.DataFrame(
             [
                 {"check": check_name, "rows": count}
@@ -666,7 +663,7 @@ with quality_tab:
                 "and summed item-line net revenue. This is a reconciliation finding, not "
                 "automatically a data error; the amount definitions need confirmation."
             )
-        st.json(expanded["manifest"])
+        st.json(analytics_data["manifest"])
 
 st.divider()
 st.caption(

@@ -1,4 +1,4 @@
-"""Read-only PostgreSQL extraction and DuckDB analytics for the expanded snapshot."""
+"""Read-only PostgreSQL extraction and DuckDB analytics for Aislewise."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app import database_connection
 
-OUTPUT_PATH = PROJECT_ROOT / "data" / "expanded"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "analytics"
 BATCH_SIZE = 2_000
 SOURCE_TABLES = {
     "catalog.dim_products": "products",
@@ -63,21 +63,8 @@ REQUIRED_COLUMNS = {
     },
     "customers.wishlists": {"customer_id", "asin"},
 }
-EXPECTED_SYNTHETIC_ADDITIONS = {
-    "catalog.dim_products": 8_000,
-    "customers.dim_customers": 5_000,
-    "fulfillment.dim_fulfillment_centers": 50,
-    "retail_traffic.fact_glance_views": 33_000,
-    "retail_sales.fact_orders": 7_000,
-    "retail_sales.fact_order_items": 14_000,
-    "retail_inventory.fact_fba_inventory_daily": 5_000,
-    "catalog.dim_reviews": 4_000,
-    "customers.cart_items": 2_000,
-    "customers.wishlists": 1_950,
-}
-
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-logger = logging.getLogger("aislewise.expanded_pipeline")
+logger = logging.getLogger("aislewise.analytics_pipeline")
 
 EXTRACT_QUERIES = {
     "products.csv": """
@@ -512,9 +499,17 @@ def _duckdb_analytics(output_dir: Path) -> dict[str, int]:
         db.execute(
             f"""
             COPY (
-                SELECT * EXCLUDE (rating, traffic_event_count),
-                       rating AS average_rating,
-                       traffic_event_count AS total_views
+                SELECT asin, product_title, brand, category, department,
+                       standard_price, original_price, discount_percent,
+                       rating AS average_rating, rating_count,
+                       inventory_snapshot_date, latest_inventory_units,
+                       latest_reserved_units,
+                       traffic_event_count AS total_views,
+                       order_line_count, units_sold, item_line_net_revenue,
+                       review_count, average_review_rating,
+                       low_rating_review_count, high_rating_review_count,
+                       active_cart_lines, active_cart_units, saved_cart_lines,
+                       wishlist_additions, segment
                 FROM read_csv_auto('{paths['product_performance.csv']}')
                 ORDER BY asin
             ) TO '{paths['product_segmentation_recommendations.csv']}'
@@ -679,7 +674,7 @@ def _validate_export_completeness(
         db.close()
 
 
-def build_expanded_snapshot(output_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+def build_analytics_snapshot(output_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     """Extract sanitized aggregates, validate them, and derive DuckDB analytics."""
     output_path.mkdir(parents=True, exist_ok=True)
     source_counts: dict[str, int] = {}
@@ -700,11 +695,8 @@ def build_expanded_snapshot(output_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     )
     derived_counts = _duckdb_analytics(output_path)
     observed_record_total = sum(source_counts.values())
-    claimed_addition_total = sum(EXPECTED_SYNTHETIC_ADDITIONS.values())
     quality_report = {
         "source_table_rows": source_counts,
-        "owner_reported_synthetic_additions": EXPECTED_SYNTHETIC_ADDITIONS,
-        "owner_reported_synthetic_addition_total": claimed_addition_total,
         "observed_rows_across_extracted_tables": observed_record_total,
         "validated_schema_columns": schema,
         "export_reconciliation": export_reconciliation,
@@ -739,8 +731,6 @@ def build_expanded_snapshot(output_path: Path = OUTPUT_PATH) -> dict[str, Any]:
         "source": "Existing Neon PostgreSQL database; read-only transaction",
         "extracted_at_utc": datetime.now(timezone.utc).isoformat(),
         "product_rows": source_counts["catalog.dim_products"],
-        "owner_reported_synthetic_additions": EXPECTED_SYNTHETIC_ADDITIONS,
-        "owner_reported_synthetic_addition_total": claimed_addition_total,
         "observed_rows_across_extracted_tables": observed_record_total,
         "export_reconciliation": export_reconciliation,
         "source_table_rows": source_counts,
@@ -765,4 +755,4 @@ def build_expanded_snapshot(output_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     return manifest
 
 if __name__ == "__main__":
-    build_expanded_snapshot()
+    build_analytics_snapshot()

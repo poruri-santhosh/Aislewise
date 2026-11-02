@@ -1,15 +1,13 @@
-# Aislewise Expanded Retail Analytics
+# Aislewise Retail Analytics
 
 - **Snapshot date:** 2026-11-02
 - **Dataset version:** `aislewise-retail-analytics-v1`
 - **Source:** Neon PostgreSQL, read-only extraction
-- **Audience:** Portfolio demonstration; all records are synthetic demo data.
+- **Data notice:** Retail activity and review records are synthetic demo data.
 
 ## Executive overview
 
-The expanded snapshot contains **8,079 products** and **107,702 observed rows across ten source tables**. The project owner reports **80,000 additional synthetic rows across those tables**; the additions include 8,000 products and supporting customer, traffic, order, inventory, fulfillment, cart, wishlist, and review records. They are not 80,000 products.
-
-The bundle includes privacy-safe product-level and grouped analytics. It does not publish customer identifiers/contact information, raw order records, tracking details, reviewer identities, or review text.
+The analytics snapshot contains **8,079 products** and **107,702 observed rows across ten source tables**. The published bundle provides product-level and grouped analytics without customer identifiers, raw order records, tracking details, reviewer identities, or review text.
 
 | Metric | Snapshot result |
 |---|---:|
@@ -27,9 +25,9 @@ The bundle includes privacy-safe product-level and grouped analytics. It does no
 | Repeat purchasers (2+ non-cancelled orders) | 2,040 |
 | Synthetic review rows, published as aggregates | 4,280 |
 | Fulfillment centers | 57 |
-| Rows across ten extracted source tables | 107,702 |
+| Rows across ten source tables | 107,702 |
 
-Item-line `net_revenue` is not profit; the database does not provide product cost. The source currency is not established by this export. The current snapshot's order and traffic windows also differ, so no conversion rate is reported.
+Item-line `net_revenue` is not profit; the database does not provide product cost. The source currency is not established by this export. The order and traffic windows also differ, so no conversion rate is reported.
 
 ## Product portfolio
 
@@ -43,13 +41,13 @@ Segments use product-level rating and recorded product-view event counts, with i
 | Dead Weight | 5,333 | Rating < 4.2 and fewer than 20 recorded events |
 | **Total** | **8,079** | |
 
-Traffic is a count of event rows, not unique visitors. The large low-traffic quadrants should be interpreted alongside event coverage and the source's synthetic-data limitations.
+Traffic is a count of event rows, not unique visitors. The large low-traffic quadrants should be interpreted alongside event coverage and the demo data's synthetic nature.
 
 ## Sales, customer, and demand measures
 
 - The source contains 8,176 order rows and 15,480 item rows.
 - Summed item-line `net_revenue` is 31,534,700.11 in source units; `fact_orders.total_amount` sums to 30,754,583.75. These source values remain separate.
-- Customer reports group all 5,204 customer rows by the six stored segment labels. Purchasers count customers with at least one non-cancelled/canceled-status order; repeat purchasers count at least two such orders.
+- Customer reports group all 5,204 customer rows by the six stored segment labels. Purchasers count customers with at least one non-cancelled order; repeat purchasers count at least two such orders.
 - Traffic contains 40,614 events across 8,064 products. It is not a unique-visitor measure.
 - Discount bands compare observed catalog/product outcomes descriptively; they do not prove discounts cause unit or revenue changes.
 
@@ -63,18 +61,18 @@ There are 4,280 synthetic review rows. Only product-level rating aggregates and 
 
 ## Data quality results
 
-The read-only extraction checked all required columns before exporting. It reported **zero** duplicate business/primary keys, orphan product/customer/order/center references, missing required product fields, invalid product prices/ratings/discounts, negative inventory/reservations, and invalid order-item quantities/values.
+The read-only extraction checked required columns before exporting. It reported **zero** duplicate business/primary keys, orphan product/customer/order/center references, missing required product fields, invalid product prices/ratings/discounts, negative inventory/reservations, and invalid order-item quantities/values.
 
-Two exceptions are explicitly retained in [`data/expanded/data_quality.json`](../data/expanded/data_quality.json):
+Two exceptions are explicitly retained in [`data/analytics/data_quality.json`](../data/analytics/data_quality.json):
 
 1. **875 orders** differ by more than 0.02 between `fact_orders.total_amount` and summed `fact_order_items.net_revenue`. They may have different business definitions; reconcile with the source owner before comparing them as equivalent totals.
 2. **136 inventory rows** have `out_of_stock_flag` inconsistent with `units_in_stock = 0`. The pipeline surfaces but does not mutate or “correct” source data.
 
 ## Reproducible outputs
 
-The snapshot manifest [`data/expanded/manifest.json`](../data/expanded/manifest.json) records source table counts, derived row counts, dataset version, and extraction time. Derived tables use DuckDB over the privacy-safe CSV extracts.
+The [snapshot manifest](../data/analytics/manifest.json) records source table counts, derived row counts, dataset version, and extraction time. Derived tables use DuckDB over privacy-safe CSV extracts.
 
-Generated visualizations are under `reports/visualisations/expanded/`:
+Generated visualizations are under `reports/visualisations/analytics/`:
 
 - `product_segments.png` — portfolio segment counts.
 - `category_performance.png` and `brand_performance.png` — leading categories and brands by item-line amount.
@@ -84,11 +82,11 @@ Generated visualizations are under `reports/visualisations/expanded/`:
 - `review_ratings.png` — synthetic review rating distribution.
 - `discount_units.png` — observed units by catalog discount band.
 
-Run `python eda/expanded_pipeline.py` to refresh the read-only snapshot and `python eda/visualisations/expanded.py` to regenerate the charts. See [`docs/DATA_DICTIONARY.md`](../docs/DATA_DICTIONARY.md) for field grains, privacy controls, and metric definitions.
+Run `python eda/analytics_pipeline.py` to refresh the read-only snapshot and `python eda/visualisations/analytics.py` to regenerate the charts. See the [data dictionary](../docs/DATA_DICTIONARY.md) for field grains, privacy controls, and metric definitions.
 
 ## Limitations
 
-- All application and analytics records are synthetic; findings do not describe actual customer behavior.
+- All retail behavior and review records are synthetic demo data; findings do not describe actual customer behavior.
 - View events are not unique people. No compatible visitor/order cohort is available for conversion-rate calculation.
 - Net revenue is not profit; costs are unavailable.
 - Order totals and item-line net revenue disagree for 875 orders and require business-definition reconciliation.

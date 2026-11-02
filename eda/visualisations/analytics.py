@@ -1,4 +1,4 @@
-"""Generate charts from the sanitized expanded analytical snapshot."""
+"""Generate charts from the sanitized Aislewise analytics dataset."""
 
 from pathlib import Path
 
@@ -11,8 +11,8 @@ import pandas as pd
 import seaborn as sns
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_PATH = PROJECT_ROOT / "data" / "expanded"
-OUTPUT_PATH = PROJECT_ROOT / "reports" / "visualisations" / "expanded"
+DATA_PATH = PROJECT_ROOT / "data" / "analytics"
+OUTPUT_PATH = PROJECT_ROOT / "reports" / "visualisations" / "analytics"
 
 sns.set_theme(style="whitegrid", palette="deep")
 
@@ -51,7 +51,7 @@ def generate_visualizations() -> list[Path]:
     )
     fig, axis = plt.subplots(figsize=(10, 5))
     sns.barplot(data=segments, x="products", y="segment", ax=axis, color="#16856b")
-    axis.set(title=f"Expanded product portfolio ({len(products):,} products)", xlabel="Products", ylabel="")
+    axis.set(title=f"Aislewise product portfolio ({len(products):,} products)", xlabel="Products", ylabel="")
     target = OUTPUT_PATH / "product_segments.png"
     _save(fig, target.name)
     created.append(target)

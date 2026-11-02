@@ -3,11 +3,11 @@ from pathlib import Path
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = PROJECT_ROOT / "data" / "expanded" / "product_performance.csv"
+DATA_PATH = PROJECT_ROOT / "data" / "analytics" / "product_performance.csv"
 
 
 def load_data():
-    """Load expanded product-level analytics with legacy EDA column aliases."""
+    """Load product-level analytics with the shared EDA column aliases."""
     data = pd.read_csv(DATA_PATH)
     required = {
         "asin",
@@ -18,7 +18,7 @@ def load_data():
     }
     missing = required.difference(data.columns)
     if missing:
-        raise ValueError(f"Expanded product data is missing columns: {', '.join(sorted(missing))}")
+        raise ValueError(f"Product analytics is missing columns: {', '.join(sorted(missing))}")
     return data.rename(
         columns={
             "traffic_event_count": "total_views",
@@ -30,7 +30,7 @@ def load_data():
 if __name__ == "__main__":
     df = load_data()
 
-    print("Expanded product analytics loaded successfully!")
+    print("Aislewise product analytics loaded successfully!")
     print(f"Rows: {df.shape[0]}")
     print(f"Columns: {df.shape[1]}")
     print(df.head())

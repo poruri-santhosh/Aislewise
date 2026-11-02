@@ -66,7 +66,7 @@ print(
 output_path = os.path.join(
     str(Path(__file__).resolve().parents[1]),
     "data",
-    "expanded",
+    "analytics",
     "product_segmentation_recommendations.csv",
 )
 os.makedirs(os.path.dirname(output_path), exist_ok=True)

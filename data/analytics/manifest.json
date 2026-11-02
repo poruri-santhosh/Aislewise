@@ -10,21 +10,8 @@
     "shopping_intent_products_match_catalog": 8079,
     "traffic_events_match_source": 40614
   },
-  "extracted_at_utc": "2026-11-02T19:23:13.503174+00:00",
+  "extracted_at_utc": "2026-11-02T19:38:51.562681+00:00",
   "observed_rows_across_extracted_tables": 107702,
-  "owner_reported_synthetic_addition_total": 80000,
-  "owner_reported_synthetic_additions": {
-    "catalog.dim_products": 8000,
-    "catalog.dim_reviews": 4000,
-    "customers.cart_items": 2000,
-    "customers.dim_customers": 5000,
-    "customers.wishlists": 1950,
-    "fulfillment.dim_fulfillment_centers": 50,
-    "retail_inventory.fact_fba_inventory_daily": 5000,
-    "retail_sales.fact_order_items": 14000,
-    "retail_sales.fact_orders": 7000,
-    "retail_traffic.fact_glance_views": 33000
-  },
   "persisted_output_rows": {
     "brand_performance.csv": 26,
     "category_performance.csv": 30,

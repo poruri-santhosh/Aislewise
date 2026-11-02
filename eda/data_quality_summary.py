@@ -1,4 +1,4 @@
-"""Summarize quality characteristics of the expanded product snapshot."""
+"""Summarize quality characteristics of the product catalog."""
 
 import pandas as pd
 
@@ -10,9 +10,9 @@ def main() -> None:
     required = ["asin", "product_title", "total_views", "average_rating", "standard_price"]
     missing_columns = set(required).difference(data.columns)
     if missing_columns:
-        raise ValueError(f"Expanded product data is missing columns: {sorted(missing_columns)}")
+        raise ValueError(f"Product data is missing columns: {sorted(missing_columns)}")
 
-    print("EXPANDED PRODUCT DATA QUALITY")
+    print("AISLEWISE PRODUCT DATA QUALITY")
     print(f"Rows: {len(data):,}")
     print(f"Columns: {len(data.columns):,}")
     print("\nMissing values by column:")

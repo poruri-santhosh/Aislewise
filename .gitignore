@@ -11,5 +11,4 @@ __pycache__/
 htmlcov/
 .streamlit/secrets.toml
 *.duckdb
-/product_views_analysis.csv
 /data/processed/at_risk_products_reviews.csv

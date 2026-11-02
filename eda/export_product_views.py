@@ -1,12 +1,12 @@
-"""Compatibility entry point for the read-only, baseline-preserving pipeline."""
+"""Refresh the read-only analytics snapshot from PostgreSQL."""
 
-from expanded_pipeline import build_expanded_snapshot
+from analytics_pipeline import build_analytics_snapshot
 
 
 if __name__ == "__main__":
-    manifest = build_expanded_snapshot()
+    manifest = build_analytics_snapshot()
     print(
-        "Expanded analytics snapshot refreshed; baseline remains unchanged. "
-        f"Products: {manifest['expanded_product_rows']:,}; "
-        f"new products vs baseline: {manifest['new_products_vs_baseline']:,}."
+        "Aislewise analytics snapshot refreshed. "
+        f"Products: {manifest['product_rows']:,}; "
+        f"source records: {manifest['observed_rows_across_extracted_tables']:,}."
     )

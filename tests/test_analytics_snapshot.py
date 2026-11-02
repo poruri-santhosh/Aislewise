@@ -9,47 +9,31 @@ from dotenv import load_dotenv
 from streamlit.testing.v1 import AppTest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-EXPANDED_PATH = PROJECT_ROOT / "data" / "expanded"
+ANALYTICS_PATH = PROJECT_ROOT / "data" / "analytics"
 EDA_PATH = PROJECT_ROOT / "eda"
 sys.path.insert(0, str(EDA_PATH))
 load_dotenv(PROJECT_ROOT / ".env")
 
 from portfolio import classify_product
 
-OWNER_REPORTED_ADDITION_COUNTS = {
-    "catalog.dim_products": 8_000,
-    "customers.dim_customers": 5_000,
-    "fulfillment.dim_fulfillment_centers": 50,
-    "retail_traffic.fact_glance_views": 33_000,
-    "retail_sales.fact_orders": 7_000,
-    "retail_sales.fact_order_items": 14_000,
-    "retail_inventory.fact_fba_inventory_daily": 5_000,
-    "catalog.dim_reviews": 4_000,
-    "customers.cart_items": 2_000,
-    "customers.wishlists": 1_950,
-}
-
-
-class ExpandedAnalyticsTests(unittest.TestCase):
+class RetailAnalyticsTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.manifest = json.loads(
-            (EXPANDED_PATH / "manifest.json").read_text(encoding="utf-8")
+            (ANALYTICS_PATH / "manifest.json").read_text(encoding="utf-8")
         )
         cls.quality = json.loads(
-            (EXPANDED_PATH / "data_quality.json").read_text(encoding="utf-8")
+            (ANALYTICS_PATH / "data_quality.json").read_text(encoding="utf-8")
         )
 
-    def test_expanded_product_snapshot_is_complete_and_unique(self):
-        products = pd.read_csv(EXPANDED_PATH / "product_performance.csv")
+    def test_product_catalog_is_complete_and_unique(self):
+        products = pd.read_csv(ANALYTICS_PATH / "product_performance.csv")
         recommendations = pd.read_csv(
-            EXPANDED_PATH / "product_segmentation_recommendations.csv"
+            ANALYTICS_PATH / "product_segmentation_recommendations.csv"
         )
         self.assertEqual(len(products), self.manifest["product_rows"])
         self.assertEqual(products["asin"].nunique(), len(products))
-        self.assertGreater(len(products), 8_000)
         self.assertEqual(self.manifest["product_rows"], 8_079)
-        self.assertEqual(self.manifest["owner_reported_synthetic_addition_total"], 80_000)
         self.assertEqual(len(recommendations), len(products))
         self.assertEqual(recommendations["asin"].tolist(), products["asin"].tolist())
         self.assertEqual(recommendations["segment"].tolist(), products["segment"].tolist())
@@ -60,12 +44,7 @@ class ExpandedAnalyticsTests(unittest.TestCase):
             len(products),
         )
 
-    def test_owner_reported_record_additions_match_the_release_manifest(self):
-        self.assertEqual(
-            self.manifest["owner_reported_synthetic_additions"],
-            OWNER_REPORTED_ADDITION_COUNTS,
-        )
-        self.assertEqual(sum(OWNER_REPORTED_ADDITION_COUNTS.values()), 80_000)
+    def test_manifest_source_counts_match_observed_total(self):
         self.assertEqual(
             self.manifest["observed_rows_across_extracted_tables"],
             sum(self.manifest["source_table_rows"].values()),
@@ -83,7 +62,7 @@ class ExpandedAnalyticsTests(unittest.TestCase):
             "order_id",
             "tracking_number",
         }
-        for csv_path in EXPANDED_PATH.glob("*.csv"):
+        for csv_path in ANALYTICS_PATH.glob("*.csv"):
             columns = set(pd.read_csv(csv_path, nrows=0).columns)
             self.assertFalse(
                 prohibited_columns.intersection(columns),
@@ -109,9 +88,9 @@ class ExpandedAnalyticsTests(unittest.TestCase):
         self.assertEqual(self.quality["checks"]["inventory_stockout_flag_mismatches"], 136)
 
     def test_daily_aggregates_reconcile_to_source_table_counts(self):
-        daily_traffic = pd.read_csv(EXPANDED_PATH / "traffic_daily.csv")
-        daily_orders = pd.read_csv(EXPANDED_PATH / "orders_daily.csv")
-        review_ratings = pd.read_csv(EXPANDED_PATH / "review_rating_distribution.csv")
+        daily_traffic = pd.read_csv(ANALYTICS_PATH / "traffic_daily.csv")
+        daily_orders = pd.read_csv(ANALYTICS_PATH / "orders_daily.csv")
+        review_ratings = pd.read_csv(ANALYTICS_PATH / "review_rating_distribution.csv")
         self.assertEqual(
             int(daily_traffic["view_events"].sum()),
             self.manifest["source_table_rows"]["retail_traffic.fact_glance_views"],
@@ -137,14 +116,14 @@ class ExpandedAnalyticsTests(unittest.TestCase):
             classify_product(19, 4.19), "Dead Weight (Low Traffic, Low Rating)"
         )
 
-    def test_expanded_visualizations_generate_nonempty_pngs(self):
-        from visualisations.expanded import generate_visualizations
+    def test_analytics_visualizations_generate_nonempty_pngs(self):
+        from visualisations.analytics import generate_visualizations
 
         generated = generate_visualizations()
         self.assertEqual(len(generated), 8)
         self.assertTrue(all(path.is_file() and path.stat().st_size > 1_000 for path in generated))
 
-    def test_streamlit_dashboard_renders_with_expanded_dataset(self):
+    def test_streamlit_dashboard_renders_with_project_dataset(self):
         app = AppTest.from_file(str(PROJECT_ROOT / "streamlit_app.py")).run(timeout=60)
         self.assertEqual(len(app.exception), 0)
         self.assertTrue(any("See the catalog from every angle." in title.value for title in app.title))
@@ -181,7 +160,7 @@ class ReadOnlyDatabaseIntegrationTests(unittest.TestCase):
 
     @staticmethod
     def manifest_product_count() -> int:
-        manifest_path = EXPANDED_PATH / "manifest.json"
+        manifest_path = ANALYTICS_PATH / "manifest.json"
         return int(json.loads(manifest_path.read_text(encoding="utf-8"))["product_rows"])
 
 

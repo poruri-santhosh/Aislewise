@@ -43,19 +43,6 @@
     "interpretation": "Reported as a reconciliation exception. Order totals and line net revenue may use different business definitions; no profit or conversion rate is inferred.",
     "orders_with_total_differing_from_item_line_net_revenue_over_0_02": 875
   },
-  "owner_reported_synthetic_addition_total": 80000,
-  "owner_reported_synthetic_additions": {
-    "catalog.dim_products": 8000,
-    "catalog.dim_reviews": 4000,
-    "customers.cart_items": 2000,
-    "customers.dim_customers": 5000,
-    "customers.wishlists": 1950,
-    "fulfillment.dim_fulfillment_centers": 50,
-    "retail_inventory.fact_fba_inventory_daily": 5000,
-    "retail_sales.fact_order_items": 14000,
-    "retail_sales.fact_orders": 7000,
-    "retail_traffic.fact_glance_views": 33000
-  },
   "persisted_outputs": {
     "brand_performance.csv": 26,
     "category_performance.csv": 30,
