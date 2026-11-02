@@ -4,6 +4,8 @@ import unittest
 from collections import Counter
 from pathlib import Path
 
+from streamlit.testing.v1 import AppTest
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "eda"))
 
@@ -86,6 +88,11 @@ class AnalyticsSnapshotTests(unittest.TestCase):
                 for product in zero_view_products
             )
         )
+
+    def test_streamlit_dashboard_renders_without_errors(self):
+        app = AppTest.from_file(str(PROJECT_ROOT / "streamlit_app.py")).run(timeout=20)
+        self.assertEqual(len(app.exception), 0)
+        self.assertTrue(any("See the catalog from every angle." in title.value for title in app.title))
 
 
 if __name__ == "__main__":

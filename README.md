@@ -10,7 +10,7 @@
 |---|---|---|
 | Search, compare, and shop in a responsive storefront | Connect catalog, inventory, and product-view data | Turn repeatable analysis into clear portfolio insights |
 
-**[Open the hosted demo](https://amazon-clone-qcf3bfs86-porurisanthosh674-5041.vercel.app)** · **Built with Flask, PostgreSQL, and Python analytics**
+**[Open the storefront](https://amazon-clone-qcf3bfs86-porurisanthosh674-5041.vercel.app)** · **Streamlit-ready interactive analytics dashboard** · **Built with Flask, PostgreSQL, and Python**
 
 > **Independent demo:** Aislewise is not affiliated with or endorsed by Amazon. The current storefront is an Amazon-inspired prototype, not a production retail service. Sample reviews are synthetic demo data, not verified customer feedback. “Aislewise” is a working name; verify name and trademark availability before commercial use.
 
@@ -22,6 +22,7 @@
 | Web application | Python, Flask | Store pages, APIs, sessions, authentication, cart, wishlist, and checkout |
 | Database | PostgreSQL on Neon | Persistent catalog, customer, traffic, review, inventory, and order data |
 | Analytics | Python, Pandas, Matplotlib | CSV extraction, data-quality checks, EDA, portfolio segmentation, and charts |
+| Analytics UI | Streamlit | Interactive snapshot dashboard, filters, charts, and CSV downloads |
 
 - Search, autocomplete, category filters, sorting, and product detail views
 - Product ratings, customer reviews, and review submission
@@ -29,12 +30,13 @@
 - Checkout, delivery options, order history, and package tracking
 - Customer support interface and responsive storefront layout
 - A Python analytics workflow for product traffic, portfolio segmentation, and visual reporting
+- A separately deployable Streamlit dashboard for interactive product analysis
 
 ## Architecture
 
 ### Commerce application
 
-The storefront runs as a Flask application on Vercel. PostgreSQL on Neon is the source of truth for catalog, customer, inventory, traffic, and order data. Jinja templates render the web experience; the browser calls Flask routes for catalog and shopping actions.
+The storefront runs as a Flask application on Vercel. PostgreSQL on Neon is the source of truth for catalog, customer, inventory, traffic, and order data. Jinja templates render the web experience; the browser calls Flask routes for catalog and shopping actions. A separate Streamlit app reads only the committed analytics snapshots and report images; it does not connect to Neon and needs no database secrets.
 
 ```mermaid
 flowchart LR
@@ -43,6 +45,7 @@ flowchart LR
     flask -->|Render| templates["Jinja templates<br/>templates/index.html"]
     templates -->|HTML and JavaScript| shopper
     flask -->|Parameterized SQL<br/>psycopg2 + TLS| postgres[("Neon PostgreSQL")]
+    snapshot["Bundled analytics data<br/>data/ + reports/"] -->|Read-only CSV and chart files| dashboard["Streamlit dashboard<br/>streamlit_app.py"]
 
     subgraph appdata["Application data"]
         catalog["catalog<br/>products, categories, reviews"]
@@ -57,12 +60,12 @@ flowchart LR
     postgres --- sales
     postgres --- traffic
 
-    classDef experience fill:#eaf3ff,stroke:#3674b5,color:#14385a,stroke-width:1.5px
-    classDef service fill:#f2ecff,stroke:#7953b5,color:#38215b,stroke-width:1.5px
-    classDef storage fill:#e7f7f1,stroke:#23836a,color:#164b3c,stroke-width:1.5px
-    class shopper,templates experience
+    classDef experience fill:#eaf3ff,stroke:#3674b5,color:#14385a
+    classDef service fill:#f2ecff,stroke:#7953b5,color:#38215b
+    classDef storage fill:#e7f7f1,stroke:#23836a,color:#164b3c
+    class shopper,templates,dashboard experience
     class vercel,flask service
-    class postgres,catalog,customers,inventory,sales,traffic storage
+    class postgres,catalog,customers,inventory,sales,traffic,snapshot storage
 ```
 
 ### Product intelligence pipeline
@@ -189,6 +192,9 @@ The schema is defined in [`schema.sql`](schema.sql). The application and analysi
 ```text
 .
 ├── app.py                         # Flask application
+├── streamlit_app.py               # Interactive, snapshot-based analytics dashboard
+├── .streamlit/
+│   └── config.toml                # Aislewise dashboard theme
 ├── vercel.json                    # Vercel function configuration
 ├── templates/
 │   └── index.html                 # Storefront UI
@@ -300,7 +306,7 @@ Outputs:
 python -m unittest discover -s tests -v
 ```
 
-The offline analytics suite currently has **5 automated tests**. It checks the checked-in snapshot's schema and 79-row size, unique product IDs and valid metrics, inclusive segment-threshold edge cases, expected segment totals (35 Stars, 17 Hidden Gems, 27 At Risk, 0 Dead Weight), and the handling of zero-view/high-rating products. These tests read the local CSV and do not require a database.
+The offline analytics suite currently has **6 automated tests**. It checks the checked-in snapshot's schema and 79-row size, unique product IDs and valid metrics, inclusive segment-threshold edge cases, expected segment totals (35 Stars, 17 Hidden Gems, 27 At Risk, 0 Dead Weight), zero-view/high-rating handling, and that the Streamlit dashboard renders without errors. These tests read the local CSV and do not require a database.
 
 The separate [`test_suite.py`](test_suite.py) contains **13 database integration checks** for storefront, catalog, search, cart, wishlist, customer updates, reviews, checkout, orders, and cancellation. It writes customer, cart, review, order, and inventory data; run it only against a disposable, seeded development database, never production:
 
@@ -309,6 +315,30 @@ python test_suite.py
 ```
 
 The integration checks have not been run as part of this README update. No pass/fail result is claimed for them.
+
+## Publish the analytics dashboard on Streamlit Community Cloud
+
+The Streamlit dashboard is a separate app from the Flask/Vercel storefront. It reads the checked-in product snapshot and saved charts, so it requires no Neon connection string, Vercel environment variables, or database secrets. Keep the GitHub repository accessible to the Streamlit account that will deploy it.
+
+### Run locally
+
+From the repository root:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m streamlit run streamlit_app.py
+```
+
+The dashboard includes interactive portfolio, distribution, and relationship charts; filters for product, segment, rating, price, and recorded views; a downloadable filtered CSV; committed report-image previews; and a clearly labeled synthetic-review sample. All charts use the bundled snapshot and respond to the active filters.
+
+### Deploy from GitHub
+
+1. Push the repository to GitHub and sign in to [Streamlit Community Cloud](https://share.streamlit.io/).
+2. Select **Create app**, choose `poruri-santhosh/AMAZON-CLONE`, branch `main`, and main file path `streamlit_app.py`.
+3. Keep the repository root as the app working directory. No secrets or custom install command are required; Streamlit installs the dependencies from the root `requirements.txt`.
+4. Deploy. The public URL is issued by Streamlit Community Cloud after the build completes.
+
+On each app reboot, Streamlit installs the declared root dependencies. The CSV snapshots and chart PNGs must remain committed and within the repository, because they are the dashboard's data inputs. To refresh them, run the documented EDA workflow, review the output and synthetic-data caveats, then commit the intended assets.
 
 ## Deploy to Vercel
 
