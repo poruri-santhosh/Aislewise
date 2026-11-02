@@ -3,32 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#131921">
-  <title>Amazon.com. Spend less. Smile more.</title>
+  <meta name="theme-color" content="#102a36">
+  <meta name="description" content="Discover products with Aislewise: a thoughtful shopping experience built around clarity, choice, and confident decisions.">
+  <title>Aislewise — Find what fits.</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
-      --navy: #131921;
-      --navy-light: #232f3e;
-      --navy-dark: #0f1111;
-      --orange: #febd69;
-      --orange-btn: #ffd814;
-      --orange-btn-hover: #f7ca00;
-      --orange-buy-btn: #ffa41c;
-      --orange-buy-hover: #fa8900;
-      --amazon-link: #007185;
-      --amazon-link-hover: #c7511f;
-      --line-color: #d5d9d9;
-      --bg-color: #eaeded;
-      --prime-blue: #00a8e1;
-      --deal-red: #cc0c39;
-      --stock-green: #007600;
-      --star-color: #de7921;
+      --navy: #102a36;
+      --navy-light: #173c49;
+      --navy-dark: #17303b;
+      --orange: #74d4b0;
+      --orange-btn: #1c9a76;
+      --orange-btn-hover: #167c61;
+      --orange-buy-btn: #1c9a76;
+      --orange-buy-hover: #167c61;
+      --amazon-link: #167c70;
+      --amazon-link-hover: #105d54;
+      --line-color: #e2e8e7;
+      --bg-color: #f4f7f6;
+      --prime-blue: #167c70;
+      --deal-red: #a64e46;
+      --stock-green: #16835d;
+      --star-color: #dc9a39;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: "Amazon Ember", Arial, sans-serif;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg-color);
       color: var(--navy-dark);
       min-width: 320px;
@@ -37,7 +38,7 @@
     }
 
     a { color: var(--amazon-link); text-decoration: none; cursor: pointer; }
-    a:hover { color: var(--amazon-link-hover); text-decoration: underline; }
+    a:hover { color: var(--amazon-link-hover); text-decoration: none; }
     button, input, select, textarea { font-family: inherit; }
     button { cursor: pointer; border: none; }
 
@@ -95,11 +96,13 @@
       position: relative;
     }
     .nav-logo-text span {
-      color: var(--orange);
-      font-size: 13px;
+      display: block;
+      color: #b7c8c8;
+      font-size: 8px;
       font-weight: 500;
-      letter-spacing: normal;
-      margin-left: 2px;
+      letter-spacing: .14em;
+      margin: 4px 0 0;
+      line-height: 1;
     }
     .nav-logo-text::after {
       content: "";
@@ -108,7 +111,7 @@
       bottom: -6px;
       width: 100%;
       height: 7px;
-      border-bottom: 3px solid #ff9900;
+      border-bottom: 3px solid #74d4b0;
       border-radius: 0 0 50% 50%;
       transform: rotate(-1deg);
     }
@@ -132,7 +135,7 @@
       position: relative;
     }
     .nav-search-bar:focus-within {
-      box-shadow: 0 0 0 3px #f3a847;
+      box-shadow: 0 0 0 3px rgba(116, 212, 176, .55);
     }
     .nav-search-category {
       background: #e6e6e6;
@@ -183,7 +186,7 @@
       color: #111;
       transition: background 0.15s;
     }
-    .nav-search-btn:hover { background: #f3a847; }
+    .nav-search-btn:hover { background: #55bb92; }
 
     /* Suggestions Dropdown */
     .nav-suggestions {
@@ -895,7 +898,7 @@
       cursor: pointer;
       padding: 3px;
     }
-    .pdp-thumb.active, .pdp-thumb:hover { border-color: #e47911; box-shadow: 0 0 0 1px #e47911; }
+    .pdp-thumb.active, .pdp-thumb:hover { border-color: #1c9a76; box-shadow: 0 0 0 1px #1c9a76; }
 
     .pdp-info { display: flex; flex-direction: column; }
     .pdp-brand-link { font-size: 13px; color: var(--amazon-link); margin-bottom: 4px; }
@@ -1385,7 +1388,7 @@
       margin-bottom: 18px;
       display: inline-block;
     }
-    .auth-logo span { color: #ff9900; }
+    .auth-logo span { color: #1c9a76; }
     .auth-card {
       border: 1px solid #ddd;
       border-radius: 8px;
@@ -1409,7 +1412,7 @@
     }
     .auth-tab.active {
       color: #111;
-      border-bottom: 2px solid #e47911;
+      border-bottom: 2px solid #1c9a76;
     }
     .auth-btn-submit {
       width: 100%;
@@ -1588,7 +1591,243 @@
       opacity: 1;
     }
     .toast-popup.success { border-left: 4px solid #00c853; }
-    .toast-popup.error { border-left: 4px solid #ff3d00; }
+    .toast-popup.error { border-left: 4px solid #a64e46; }
+    .demo-payment-note {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid #cfe7d9;
+      border-radius: 10px;
+      background: #f0faf4;
+      color: #31594a;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Aislewise visual identity */
+    .navbar {
+      background: var(--navy);
+      box-shadow: 0 8px 24px rgba(16, 42, 54, 0.13);
+    }
+    .nav-main {
+      gap: 12px;
+      padding: 12px max(20px, calc((100vw - 1440px) / 2));
+      min-height: 76px;
+    }
+    .nav-item { border-radius: 10px; }
+    .nav-logo-box { padding: 7px 10px; }
+    .nav-logo-text {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      letter-spacing: -0.8px;
+      font-size: 23px;
+    }
+    .nav-logo-text::before {
+      content: "a";
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: var(--brand-mint);
+      color: var(--navy);
+      font-size: 23px;
+      font-weight: 850;
+      letter-spacing: -1px;
+    }
+    .nav-logo-text::after { display: none; }
+    .nav-logo-text span {
+      display: block;
+      color: #fff;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      line-height: 1;
+    }
+    .nav-logo-text small {
+      display: block;
+      color: #b7d3cb;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1.15px;
+      margin-top: 4px;
+      line-height: 1;
+    }
+    .nav-search-bar { height: 44px; }
+    .nav-search-category {
+      max-width: 150px;
+      border-radius: 10px 0 0 10px;
+      background: #f0f5f3;
+    }
+    .nav-search-input { font-size: 14px; }
+    .nav-search-btn {
+      width: 48px;
+      background: #85d9b8;
+      border-radius: 0 10px 10px 0;
+      color: #12392f;
+    }
+    .nav-search-btn:hover { background: #a4e7ca; }
+    .nav-sub {
+      background: #173c49;
+      min-height: 42px;
+      padding: 0 max(20px, calc((100vw - 1440px) / 2));
+      gap: 8px;
+    }
+    .nav-sub-item {
+      padding: 7px 11px;
+      border-radius: 8px;
+      color: #e6f0ed;
+    }
+    .nav-sub-item:hover { background: rgba(255,255,255,0.1); border-color: transparent; }
+    .hero-container {
+      max-width: 1440px;
+      height: 390px;
+      margin-top: 20px;
+      border-radius: 24px;
+      box-shadow: 0 18px 48px rgba(19, 52, 61, 0.13);
+    }
+    .hero-slide {
+      padding: 48px 6.5%;
+      background-position: center 42%;
+    }
+    .hero-slide::after {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(10,31,37,.72), rgba(10,31,37,.32) 50%, rgba(10,31,37,.05));
+    }
+    .hero-slide-content {
+      max-width: 560px;
+      padding: 30px 32px;
+      border: 1px solid rgba(255,255,255,.62);
+      border-radius: 20px;
+      background: rgba(250, 253, 251, .95);
+      box-shadow: 0 16px 38px rgba(10,31,37,.18);
+    }
+    .hero-tag {
+      color: #176f5a;
+      background: #d9f4e7;
+      border-radius: 999px;
+      padding: 6px 11px;
+      letter-spacing: .07em;
+      font-size: 10px;
+    }
+    .hero-title {
+      color: #17303b;
+      font-size: clamp(29px, 3vw, 40px);
+      letter-spacing: -1.2px;
+      line-height: 1.12;
+    }
+    .hero-desc { color: #52666d; font-size: 15px; line-height: 1.65; }
+    .hero-btn {
+      padding: 11px 20px;
+      border: 0;
+      border-radius: 999px;
+      background: #1c9a76;
+      color: white;
+      font-size: 13px;
+      transition: background .2s, transform .2s;
+    }
+    .hero-btn:hover { background: #167c61; transform: translateY(-1px); }
+    .hero-nav-arrow { top: 50%; border-radius: 14px; background: rgba(255,255,255,.84); }
+    .home-quads {
+      max-width: 1480px;
+      margin: -76px auto 28px;
+      gap: 18px;
+    }
+    .quad-card {
+      min-height: 310px;
+      padding: 22px;
+      border: 1px solid #e8eeeb;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(30, 57, 57, .08);
+    }
+    .quad-title { color: #183541; font-size: 18px; letter-spacing: -.3px; }
+    .quad-item-img { border-radius: 10px; }
+    .quad-item-label { color: #455d62; font-weight: 600; }
+    .quad-link { font-weight: 700; }
+    .main-layout {
+      max-width: 1480px;
+      padding-bottom: 56px;
+      gap: 22px;
+    }
+    .filters-sidebar, .results-bar, .product-card {
+      border: 1px solid #e6ece9;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(30,57,57,.045);
+    }
+    .filters-sidebar { padding: 20px; }
+    .results-bar { padding: 15px 20px; }
+    .products-grid { gap: 18px; }
+    .product-card {
+      padding: 18px;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .product-card:hover {
+      border-color: #b8ddd0;
+      box-shadow: 0 16px 34px rgba(30,57,57,.1);
+      transform: translateY(-3px);
+    }
+    .card-image-box {
+      height: 205px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f7faf8;
+    }
+    .card-title { color: #183541; line-height: 1.45; }
+    .card-price-val { color: #183541; }
+    .card-wishlist-btn { box-shadow: 0 3px 12px rgba(0,0,0,.1); }
+    .card-wishlist-btn:hover, .card-wishlist-btn.active { color: #c26465; }
+    .badge-bestseller, .badge-choice, .badge-deal {
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 9px;
+      letter-spacing: .04em;
+    }
+    .badge-bestseller { background: #e6f4ee; color: #176f5a; }
+    .badge-choice { background: #eaf1f8; color: #315d7b; }
+    .badge-choice span { color: #315d7b; }
+    .badge-deal { background: #fff0e8; color: #a64e46; }
+    .btn-add-cart, .btn-quick-view, .btn-amazon-primary, .btn-pdp-cart, .btn-pdp-buy, .auth-btn-submit {
+      min-height: 40px;
+      border-radius: 999px;
+      transition: transform .15s, background .15s, box-shadow .15s;
+    }
+    .btn-add-cart {
+      border: 0;
+      background: #1c9a76;
+      color: #fff;
+    }
+    .btn-add-cart:hover { background: #167c61; transform: translateY(-1px); }
+    .btn-quick-view { background: #f2f7f4; border-color: #dce8e2; color: #31504c; }
+    .btn-quick-view:hover { background: #e7f2eb; }
+    .btn-amazon-primary {
+      border: 0;
+      background: #1c9a76;
+      color: #fff;
+    }
+    .btn-amazon-primary:hover { background: #167c61; color: #fff; }
+    .btn-pdp-cart, .btn-pdp-buy, .auth-btn-submit {
+      border: 0;
+      background: #1c9a76;
+      color: #fff;
+    }
+    .btn-pdp-cart:hover, .btn-pdp-buy:hover, .auth-btn-submit:hover {
+      background: #167c61;
+      color: #fff;
+    }
+    .price-go-btn { border: 0; border-radius: 999px; background: #dff3e8; color: #176f5a; }
+    .footer-main { background: #173c49; }
+    .footer-bottom { background: #102a36; }
+    .footer-brand {
+      margin-bottom: 5px;
+      color: #fff;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.7px;
+    }
+    .footer-bottom p { margin: 4px auto; }
+    .footer-disclaimer { max-width: 720px; color: #b7c8c8; }
+    .back-to-top { background: #244b55; }
+    .modal-box, .drawer-nav { border-radius: 18px; }
 
     /* Responsive */
     @media (max-width: 900px) {
@@ -1597,6 +1836,39 @@
       .pdp-container { grid-template-columns: 1fr; }
       .hero-container { height: 260px; }
       .home-quads { margin-top: -30px; }
+      .hero-slide { padding: 28px; }
+      .hero-slide-content { max-width: 470px; padding: 24px; }
+      .nav-main { flex-wrap: wrap; padding: 10px 16px; }
+      .nav-search-bar { order: 5; flex: 1 0 100%; }
+      .nav-sub { padding: 0 12px; }
+    }
+    @media (max-width: 600px) {
+      .nav-main { gap: 4px; padding: 8px 10px; }
+      .nav-logo-text span { font-size: 20px; }
+      .nav-logo-text small { font-size: 7px; }
+      .nav-logo-text::before { width: 30px; height: 30px; }
+      .nav-deliver, .nav-lang, .nav-item[title="View past orders & tracking"] { display: none; }
+      .nav-account { margin-left: auto; }
+      .nav-cart { padding: 6px; }
+      .nav-sub { min-height: 40px; }
+      .hero-container { height: 285px; margin: 12px 10px 0; border-radius: 17px; }
+      .hero-slide { padding: 22px 18px; }
+      .hero-slide-content { max-width: 100%; padding: 19px; border-radius: 15px; }
+      .hero-title { font-size: 26px; }
+      .hero-desc { font-size: 13px; margin-bottom: 12px; }
+      .hero-nav-arrow { width: 34px; height: 48px; }
+      .hero-prev { left: 7px; }
+      .hero-next { right: 7px; }
+      .home-quads { padding: 0 12px; grid-template-columns: 1fr; }
+      .quad-card { min-height: auto; }
+      .main-layout { padding: 0 12px 36px; gap: 14px; }
+      .results-bar { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .product-card { padding: 12px; }
+      .card-image-box { height: 145px; }
+      .card-title { font-size: 13px; }
+      .card-price-val { font-size: 18px; }
+      .card-rating-count { font-size: 10px; }
     }
   </style>
 </head>
@@ -1607,9 +1879,9 @@
        ========================================== -->
   <header class="navbar">
     <div class="nav-main">
-      <!-- Amazon Logo -->
-      <a href="#" class="nav-item nav-logo-box" onclick="resetAllFilters(event)" title="Amazon Home">
-        <div class="nav-logo-text">amazon<span>.clone</span></div>
+      <!-- Aislewise brand -->
+      <a href="#" class="nav-item nav-logo-box" onclick="resetAllFilters(event)" title="Aislewise home">
+        <div class="nav-logo-text"><span>aislewise<small>SHOP WITH CLARITY</small></span></div>
       </a>
 
       <!-- Deliver To -->
@@ -1630,7 +1902,7 @@
           {% endfor %}
         </select>
         <div class="nav-search-input-box">
-          <input type="text" class="nav-search-input" id="search-input" placeholder="Search Amazon products, brands, deals..." autocomplete="off">
+          <input type="text" class="nav-search-input" id="search-input" placeholder="Search products, brands, and categories..." autocomplete="off">
           <i class="fa-solid fa-xmark nav-search-clear" id="search-clear-btn" onclick="clearSearch()"></i>
           <div class="nav-suggestions" id="search-suggestions"></div>
         </div>
@@ -1639,29 +1911,22 @@
         </button>
       </div>
 
-      <!-- Language Selector -->
-      <div class="nav-item nav-lang" onclick="openLanguageModal()" title="Language settings">
-        <span class="nav-flag">🇺🇸</span>
-        <span style="font-weight: 700;">EN</span>
-        <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i>
-      </div>
-
       <!-- Account & Lists -->
       <div class="nav-item nav-account" id="nav-account-btn">
         <div class="nav-account-line1">Hello, <span id="nav-user-firstname">{{ customer.name.split(' ')[0] if customer else 'Sign in' }}</span></div>
-        <div class="nav-account-line2">Account & Lists <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i></div>
+        <div class="nav-account-line2">Your account <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i></div>
 
         <!-- Account Dropdown Menu -->
         <div class="nav-account-menu" id="nav-account-menu">
           <div class="account-auth-header">
             <button class="btn-amazon-primary" onclick="openAuthModal('signin')">Sign In</button>
-            <div style="font-size: 11px; margin-top: 6px;">New customer? <a onclick="openAuthModal('register')">Start here.</a></div>
+            <div style="font-size: 11px; margin-top: 6px;">New to Aislewise? <a onclick="openAuthModal('register')">Create an account.</a></div>
           </div>
           <div class="account-sublinks">
             <a onclick="openOrdersModal()"><i class="fa-solid fa-box"></i> Your Orders</a>
-            <a onclick="openWishlistModal()"><i class="fa-solid fa-heart"></i> Your Wish List</a>
-            <a onclick="filterByDeals()"><i class="fa-solid fa-tag"></i> Today's Deals</a>
-            <a onclick="openSupportModal()"><i class="fa-solid fa-headset"></i> Customer Service</a>
+            <a onclick="openWishlistModal()"><i class="fa-solid fa-heart"></i> Saved products</a>
+            <a onclick="filterByDeals()"><i class="fa-solid fa-tag"></i> Offers</a>
+            <a onclick="openSupportModal()"><i class="fa-solid fa-headset"></i> Help center</a>
             <a onclick="switchDemoAccount()"><i class="fa-solid fa-user-check"></i> Switch to Demo Account</a>
             <a onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
           </div>
@@ -1670,8 +1935,8 @@
 
       <!-- Returns & Orders -->
       <div class="nav-item" onclick="openOrdersModal()" title="View past orders & tracking">
-        <div class="nav-account-line1">Returns</div>
-        <div class="nav-account-line2">& Orders</div>
+        <div class="nav-account-line1">Your</div>
+        <div class="nav-account-line2">orders</div>
       </div>
 
       <!-- Cart Icon Button -->
@@ -1687,19 +1952,17 @@
     <!-- Secondary Subnav -->
     <div class="nav-sub">
       <div class="nav-sub-item nav-sub-hamburger" onclick="toggleDrawer()">
-        <i class="fa-solid fa-bars"></i> All
+        <i class="fa-solid fa-bars"></i> Browse
       </div>
-      <div class="nav-sub-item" onclick="filterByDeals()"><i class="fa-solid fa-bolt" style="color: var(--orange);"></i> Today's Deals</div>
+      <div class="nav-sub-item" onclick="filterByDeals()"><i class="fa-solid fa-bolt" style="color: var(--orange);"></i> Offers</div>
       <div class="nav-sub-item" onclick="filterByDepartment('Electronics')">Electronics</div>
       <div class="nav-sub-item" onclick="filterByDepartment('Computers')">Computers</div>
       <div class="nav-sub-item" onclick="filterByDepartment('Home & Kitchen')">Home & Kitchen</div>
       <div class="nav-sub-item" onclick="filterByDepartment('Fashion')">Fashion</div>
       <div class="nav-sub-item" onclick="filterByDepartment('Books')">Books</div>
-      <div class="nav-sub-item" onclick="filterByBestSellers()"><i class="fa-solid fa-crown" style="color: #ff9900;"></i> Best Sellers</div>
-      <div class="nav-sub-item" onclick="openWishlistModal()"><i class="fa-solid fa-heart"></i> Wish List</div>
-      <div class="nav-sub-item" onclick="openSupportModal()"><i class="fa-solid fa-circle-question"></i> Customer Service</div>
-      <div class="nav-sub-item" onclick="openGiftCardsModal()"><i class="fa-solid fa-gift"></i> Gift Cards</div>
-      <div class="nav-sub-item" onclick="openSellModal()">Sell on Amazon</div>
+      <div class="nav-sub-item" onclick="filterByBestSellers()"><i class="fa-solid fa-sparkles" style="color: #b7ead0;"></i> Popular picks</div>
+      <div class="nav-sub-item" onclick="openWishlistModal()"><i class="fa-solid fa-heart"></i> Saved</div>
+      <div class="nav-sub-item" onclick="openSupportModal()"><i class="fa-solid fa-circle-question"></i> Help</div>
     </div>
   </header>
 
@@ -1708,31 +1971,31 @@
        ========================================== -->
   <section class="hero-container" id="hero-banner">
     <div class="hero-slider" id="hero-slider">
-      <!-- Slide 1: Prime & Electronics -->
+      <!-- Slide 1: Aislewise brand introduction -->
       <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1500&q=80');">
         <div class="hero-slide-content">
-          <span class="hero-tag">PRIME DAY SPECIAL</span>
-          <h1 class="hero-title">Supercharge Your Everyday Tech</h1>
-          <p class="hero-desc">Up to 30% off Apple, Samsung, Sony, and more. Free Two-Day delivery with Prime.</p>
-          <button class="hero-btn" onclick="filterByDepartment('Electronics')">Explore Tech Deals</button>
+          <span class="hero-tag">WELCOME TO AISLEWISE</span>
+          <h1 class="hero-title">Find what fits. Shop with clarity.</h1>
+          <p class="hero-desc">Thoughtful discovery, useful details, and a smoother way to find the things that make everyday life better.</p>
+          <button class="hero-btn" onclick="document.getElementById('products-section').scrollIntoView({behavior: 'smooth'})">Explore the collection</button>
         </div>
       </div>
-      <!-- Slide 2: Home & Kitchen -->
+      <!-- Slide 2: Home and everyday -->
       <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1500&q=80');">
         <div class="hero-slide-content">
-          <span class="hero-tag">LIMITED TIME DEAL</span>
-          <h1 class="hero-title">Upgrade Your Kitchen & Home</h1>
-          <p class="hero-desc">Top-rated air fryers, espresso makers, and intelligent vacuums for effortless living.</p>
-          <button class="hero-btn" onclick="filterByDepartment('Home & Kitchen')">Shop Home Essentials</button>
+          <span class="hero-tag">MADE FOR EVERYDAY LIVING</span>
+          <h1 class="hero-title">A little more ease at home.</h1>
+          <p class="hero-desc">Explore useful finds for the kitchen, the living room, and all the moments in between.</p>
+          <button class="hero-btn" onclick="filterByDepartment('Home & Kitchen')">Discover home essentials</button>
         </div>
       </div>
-      <!-- Slide 3: Fashion & Trends -->
+      <!-- Slide 3: Personal style -->
       <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1500&q=80');">
         <div class="hero-slide-content">
-          <span class="hero-tag">TRENDING NOW</span>
-          <h1 class="hero-title">Fashion Forward Picks for All</h1>
-          <p class="hero-desc">Score the freshest styles in sneakers, heritage denim, and chronograph watches.</p>
-          <button class="hero-btn" onclick="filterByDepartment('Fashion')">Shop Fashion Deals</button>
+          <span class="hero-tag">YOUR STYLE, YOUR WAY</span>
+          <h1 class="hero-title">Discover pieces that feel like you.</h1>
+          <p class="hero-desc">Browse considered picks across style, technology, books, and more—all in one place.</p>
+          <button class="hero-btn" onclick="filterByDepartment('Fashion')">Explore personal style</button>
         </div>
       </div>
     </div>
@@ -1747,7 +2010,7 @@
   <section class="home-quads" id="home-quads">
     <!-- Quad 1: Electronics -->
     <div class="quad-card">
-      <h2 class="quad-title">Top categories in Electronics</h2>
+      <h2 class="quad-title">Tech for your everyday</h2>
       <div class="quad-grid-2x2">
         <div class="quad-item" onclick="filterBySearch('iPhone')">
           <img class="quad-item-img" src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300" alt="Phones">
@@ -1766,7 +2029,7 @@
           <span class="quad-item-label">Earbuds</span>
         </div>
       </div>
-      <a class="quad-link" onclick="filterByDepartment('Electronics')">See more electronics</a>
+      <a class="quad-link" onclick="filterByDepartment('Electronics')">Explore technology <i class="fa-solid fa-arrow-right"></i></a>
     </div>
 
     <!-- Quad 2: Home & Kitchen -->
@@ -1790,7 +2053,7 @@
           <span class="quad-item-label">Skincare</span>
         </div>
       </div>
-      <a class="quad-link" onclick="filterByDepartment('Home & Kitchen')">Explore home essentials</a>
+      <a class="quad-link" onclick="filterByDepartment('Home & Kitchen')">Explore home essentials <i class="fa-solid fa-arrow-right"></i></a>
     </div>
 
     <!-- Quad 3: Fashion & Trends -->
@@ -1814,21 +2077,21 @@
           <span class="quad-item-label">Best Sellers</span>
         </div>
       </div>
-      <a class="quad-link" onclick="filterByDepartment('Fashion')">Discover fashion picks</a>
+      <a class="quad-link" onclick="filterByDepartment('Fashion')">Discover personal style <i class="fa-solid fa-arrow-right"></i></a>
     </div>
 
     <!-- Quad 4: Account & Quick Actions -->
     <div class="quad-card">
-      <h2 class="quad-title">Account & Quick Services</h2>
+      <h2 class="quad-title">Your Aislewise space</h2>
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-around;">
-        <p style="font-size: 14px; color: #444;">Enjoy full Prime benefits, track your packages, and manage your wishlist.</p>
+        <p style="font-size: 14px; color: #52666d;">Keep your orders, saved finds, and shopping journey together.</p>
         <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 0;">
           <button class="btn-amazon-primary" onclick="openOrdersModal()"><i class="fa-solid fa-box"></i> View Your Orders</button>
-          <button class="btn-quick-view" onclick="openWishlistModal()"><i class="fa-solid fa-heart" style="color: #e47911;"></i> Your Wish List</button>
+          <button class="btn-quick-view" onclick="openWishlistModal()"><i class="fa-solid fa-heart" style="color: #c26465;"></i> Saved products</button>
           <button class="btn-quick-view" onclick="openCartDrawer()"><i class="fa-solid fa-cart-shopping"></i> View Cart (<span id="quad-cart-count">{{ cart_count }}</span>)</button>
         </div>
       </div>
-      <a class="quad-link" onclick="openSupportModal()">Visit Help & Customer Service</a>
+      <a class="quad-link" onclick="openSupportModal()">Visit the help center <i class="fa-solid fa-arrow-right"></i></a>
     </div>
   </section>
 
@@ -1873,14 +2136,14 @@
         </ul>
       </div>
 
-      <!-- Prime & Deals Toggles -->
+      <!-- Delivery and offers -->
       <div class="filter-group">
         <h3 class="filter-header">Special Offers</h3>
         <ul class="filter-list">
           <li>
             <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" id="filter-prime-toggle" onchange="applyFilters()">
-              <span class="prime-logo">prime</span> eligible
+              <span class="prime-logo">Fast</span> delivery eligible
             </label>
           </li>
           <li>
@@ -1892,7 +2155,7 @@
           <li>
             <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
               <input type="checkbox" id="filter-bestseller-toggle" onchange="applyFilters()">
-              <span>Best Sellers only</span>
+              <span>Popular picks only</span>
             </label>
           </li>
         </ul>
@@ -1947,9 +2210,9 @@
           <!-- Badges -->
           <div class="card-badge-container">
             {% if p.is_best_seller %}
-            <span class="badge-bestseller">#1 Best Seller</span>
+            <span class="badge-bestseller">Popular pick</span>
             {% elif p.is_amazons_choice %}
-            <span class="badge-choice">Amazon's <span>Choice</span></span>
+            <span class="badge-choice">Aislewise <span>pick</span></span>
             {% elif p.discount_percent > 15 %}
             <span class="badge-deal">Save {{ p.discount_percent }}%</span>
             {% endif %}
@@ -1980,7 +2243,7 @@
                 {% endif %}
               {% endfor %}
             </div>
-            <span class="card-rating-count">{{ "{:,}".format(p.rating_count) }}</span>
+            <span class="card-rating-count">{{ "{:,}".format(p.rating_count) }} ratings</span>
           </div>
 
           <!-- Price -->
@@ -1998,10 +2261,9 @@
           <!-- Prime & Delivery -->
           <div class="card-prime-row">
             {% if p.is_prime %}
-            <span class="prime-logo">prime</span>
-            <span>FREE delivery <strong>Tomorrow</strong></span>
+            <span class="prime-logo">Fast delivery eligible</span>
             {% else %}
-            <span>Delivery within 3-4 days</span>
+            <span>Delivery options at checkout</span>
             {% endif %}
           </div>
 
@@ -2106,16 +2368,17 @@
           <!-- Step 2: Payment Method -->
           <div class="checkout-step-card">
             <div class="checkout-step-title"><span class="checkout-step-num">2</span> Payment Method</div>
+            <p class="demo-payment-note">Demo checkout only — no payment is processed or card details are collected.</p>
             <div class="payment-radio-group">
               <label class="payment-option-label">
-                <input type="radio" name="payment_method" value="Amazon Pay (Balance $250.00)" checked>
-                <i class="fa-brands fa-amazon-pay" style="font-size: 20px; color: #ff9900;"></i>
-                <span><strong>Amazon Pay Balance</strong> (Available: $250.00)</span>
+                <input type="radio" name="payment_method" value="Demo wallet (simulated)" checked>
+                <i class="fa-solid fa-wallet" style="font-size: 20px; color: #16835d;"></i>
+                <span><strong>Demo wallet</strong> (simulated)</span>
               </label>
               <label class="payment-option-label">
-                <input type="radio" name="payment_method" value="Visa Card ending in 4242">
+                <input type="radio" name="payment_method" value="Saved card ending in 4242 (demo)">
                 <i class="fa-brands fa-cc-visa" style="font-size: 20px; color: #1a1f71;"></i>
-                <span><strong>Visa ending in 4242</strong> (Alex Mercer)</span>
+                <span><strong>Saved card ending in 4242</strong> (demo)</span>
               </label>
               <label class="payment-option-label">
                 <input type="radio" name="payment_method" value="Cash on Delivery">
@@ -2130,14 +2393,14 @@
             <div class="checkout-step-title"><span class="checkout-step-num">3</span> Delivery Options</div>
             <div class="payment-radio-group">
               <label class="payment-option-label">
-                <input type="radio" name="delivery_speed" value="FREE Two-Day Shipping" checked onchange="updateCheckoutTotal()">
-                <span class="prime-logo">prime</span>
-                <span><strong>FREE Two-Day Shipping</strong> (Delivered in 2 days)</span>
+                <input type="radio" name="delivery_speed" value="Standard Two-Day Shipping" checked onchange="updateCheckoutTotal()">
+                <i class="fa-solid fa-truck" style="color: var(--stock-green);"></i>
+                <span><strong>Standard delivery</strong> (estimated 2 days)</span>
               </label>
               <label class="payment-option-label">
-                <input type="radio" name="delivery_speed" value="Priority One-Day Shipping (+$4.99)" onchange="updateCheckoutTotal()">
-                <i class="fa-solid fa-bolt" style="color: var(--orange);"></i>
-                <span><strong>Priority One-Day Delivery</strong> (+$4.99)</span>
+                <input type="radio" name="delivery_speed" value="Express One-Day Shipping (+$4.99)" onchange="updateCheckoutTotal()">
+                <i class="fa-solid fa-bolt" style="color: #c58a2b;"></i>
+                <span><strong>Express delivery</strong> (estimated 1 day, +$4.99)</span>
               </label>
             </div>
           </div>
@@ -2224,7 +2487,7 @@
   <div class="modal-backdrop" id="auth-modal">
     <div class="modal-box auth-modal-box">
       <button class="modal-close-btn" onclick="closeModal('auth-modal')">&times;</button>
-      <div class="auth-logo">amazon<span>.clone</span></div>
+      <div class="auth-logo">aislewise</div>
 
       <div class="auth-card">
         <div class="auth-tabs">
@@ -2239,19 +2502,19 @@
 
         <div class="form-group">
           <label>Email</label>
-          <input type="email" class="form-control" id="auth-email" placeholder="example@email.com" value="demo@amazon-clone.local">
+          <input type="email" class="form-control" id="auth-email" placeholder="you@example.com">
         </div>
 
         <div class="form-group">
           <label>Password</label>
-          <input type="password" class="form-control" id="auth-password" placeholder="At least 6 characters" value="amazonpassword123">
+          <input type="password" class="form-control" id="auth-password" placeholder="Enter your password">
         </div>
 
         <button class="auth-btn-submit" id="auth-submit-btn" onclick="submitAuth()">Sign In</button>
 
         <div class="auth-demo-shortcut">
-          <p style="font-size: 11px; color: #666; margin-bottom: 8px;">Want quick testing without entering credentials?</p>
-          <button class="btn-demo-login" onclick="switchDemoAccount()"><i class="fa-solid fa-bolt" style="color: var(--orange);"></i> Instant Demo Account Login</button>
+          <p style="font-size: 11px; color: #666; margin-bottom: 8px;">Just exploring? Try the demo experience.</p>
+          <button class="btn-demo-login" onclick="switchDemoAccount()"><i class="fa-solid fa-sparkles" style="color: var(--orange);"></i> Continue with demo account</button>
         </div>
       </div>
     </div>
@@ -2290,25 +2553,25 @@
   <div class="modal-backdrop" id="support-modal">
     <div class="modal-box" style="max-width: 600px; padding: 26px;">
       <button class="modal-close-btn" onclick="closeModal('support-modal')">&times;</button>
-      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 14px;">Amazon Customer Service Hub</h2>
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 14px;">Aislewise help center</h2>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
         <div style="border: 1px solid #ddd; border-radius: 6px; padding: 14px; cursor: pointer;" onclick="closeModal('support-modal'); openOrdersModal();">
           <i class="fa-solid fa-box" style="font-size: 22px; color: var(--orange);"></i>
           <h4 style="font-size: 14px; margin-top: 6px;">Your Orders</h4>
           <p style="font-size: 11px; color: #666;">Track packages, edit or cancel orders</p>
         </div>
-        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 14px; cursor: pointer;" onclick="showToast('Returns are free within 30 days of delivery!')">
+        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 14px; cursor: pointer;" onclick="showToast('Returns and refunds are not processed in this demo.')">
           <i class="fa-solid fa-rotate-left" style="font-size: 22px; color: var(--prime-blue);"></i>
-          <h4 style="font-size: 14px; margin-top: 6px;">Returns & Refunds</h4>
-          <p style="font-size: 11px; color: #666;">Print return labels and review policy</p>
+          <h4 style="font-size: 14px; margin-top: 6px;">Returns & refunds</h4>
+          <p style="font-size: 11px; color: #666;">Preview help topic; no returns are processed</p>
         </div>
       </div>
-      <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">Simulated Customer Support Assistant:</h4>
+      <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">Aislewise demo assistant</h4>
       <div style="background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 12px; height: 160px; overflow-y: auto; font-size: 13px; line-height: 1.6;" id="support-chat-log">
-        <p><strong>Amazon Bot:</strong> Hello! How can I assist you with your orders or delivery today?</p>
+        <p><strong>Aislewise demo assistant:</strong> Hello! I can help you find your orders or explain the demo delivery options.</p>
       </div>
       <div style="display: flex; gap: 8px; margin-top: 10px;">
-        <input type="text" class="form-control" id="support-chat-input" placeholder="Ask about shipping, Prime, or payments...">
+        <input type="text" class="form-control" id="support-chat-input" placeholder="Ask about orders, delivery, or checkout...">
         <button class="btn-amazon-primary" style="width: 100px;" onclick="sendSupportMessage()">Send</button>
       </div>
     </div>
@@ -2357,45 +2620,45 @@
   <footer class="footer-main">
     <div class="footer-cols">
       <div class="footer-col">
-        <h4>Get to Know Us</h4>
+        <h4>About Aislewise</h4>
         <ul>
-          <li><a href="#" onclick="showToast('Amazon Clone portfolio project built with Flask & Neon Postgres')">About Us</a></li>
-          <li><a href="#" onclick="showToast('Careers at Amazon')">Careers</a></li>
-          <li><a href="#" onclick="showToast('Amazon Clone Press Center')">Press Releases</a></li>
-          <li><a href="#" onclick="showToast('Amazon Science & AI')">Amazon Science</a></li>
+          <li><a href="#products-section">Our collection</a></li>
+          <li><a href="#" onclick="showToast('Aislewise brings product discovery and useful insights into one experience.')">Our approach</a></li>
+          <li><a href="https://github.com/poruri-santhosh/AMAZON-CLONE" target="_blank" rel="noopener noreferrer">Explore the project</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Make Money with Us</h4>
+        <h4>Explore</h4>
         <ul>
-          <li><a href="#" onclick="openSellModal()">Sell products on Amazon</a></li>
-          <li><a href="#" onclick="showToast('Become an Affiliate')">Become an Affiliate</a></li>
-          <li><a href="#" onclick="showToast('Fulfillment by Amazon active')">Fulfillment by Amazon</a></li>
-          <li><a href="#" onclick="showToast('Advertise Your Products')">Advertise Your Products</a></li>
+          <li><a href="#" onclick="filterByDepartment('Electronics')">Technology</a></li>
+          <li><a href="#" onclick="filterByDepartment('Home & Kitchen')">Home & living</a></li>
+          <li><a href="#" onclick="filterByDepartment('Fashion')">Personal style</a></li>
+          <li><a href="#" onclick="filterByBestSellers()">Popular picks</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Amazon Payment Products</h4>
+        <h4>Your space</h4>
         <ul>
-          <li><a href="#" onclick="showToast('Amazon Pay Balance available')">Amazon Pay</a></li>
-          <li><a href="#" onclick="showToast('Amazon Business Card')">Amazon Business Card</a></li>
-          <li><a href="#" onclick="showToast('Reload Your Balance')">Reload Your Balance</a></li>
+          <li><a onclick="openOrdersModal()">Your orders</a></li>
+          <li><a onclick="openWishlistModal()">Saved products</a></li>
+          <li><a onclick="openCartDrawer()">Shopping cart</a></li>
+          <li><a onclick="openSupportModal()">Help center</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Let Us Help You</h4>
+        <h4>Made for clarity</h4>
         <ul>
-          <li><a onclick="openOrdersModal()">Your Account & Orders</a></li>
-          <li><a onclick="showToast('Shipping Rates & Policies')">Shipping Rates & Policies</a></li>
-          <li><a onclick="showToast('Returns & Replacements available')">Returns & Replacements</a></li>
-          <li><a onclick="openSupportModal()">Help & Customer Care</a></li>
+          <li><a href="#products-section">Browse the catalog</a></li>
+          <li><a href="https://github.com/poruri-santhosh/AMAZON-CLONE" target="_blank" rel="noopener noreferrer">Product insights</a></li>
+          <li><a onclick="showToast('This independent demo uses sample catalog data. Checkout is simulated.')">Demo transparency</a></li>
         </ul>
       </div>
     </div>
   </footer>
   <div class="footer-bottom">
-    <div style="font-size: 20px; font-weight: 800; color: white; margin-bottom: 8px;">amazon<span>.clone</span></div>
-    <p>© 1996-2026, Amazon.com, Inc. or its affiliates. Full mock clone running on Flask & Neon PostgreSQL.</p>
+    <div class="footer-brand">aislewise</div>
+    <p>Find what fits. Shop with clarity.</p>
+    <p class="footer-disclaimer">Aislewise is an independent shopping experience demo. It is not affiliated with Amazon. Sample catalog data and checkout flows are for demonstration.</p>
   </div>
 
   <!-- TOAST NOTIFICATION -->
@@ -2566,7 +2829,7 @@
         document.getElementById('visible-products-count').textContent = data.count || 0;
         document.getElementById('results-count-text').innerHTML = q
           ? `Showing <strong>${data.count}</strong> results for "<strong>${q}</strong>"`
-          : `Showing <strong>${data.count}</strong> products in live catalog`;
+          : `Showing <strong>${data.count}</strong> products`;
       } catch (err) {
         showToast('Error loading products', 'error');
       }
@@ -2656,9 +2919,9 @@
 
         let badgeHtml = '';
         if (p.is_best_seller) {
-          badgeHtml = '<span class="badge-bestseller">#1 Best Seller</span>';
+          badgeHtml = '<span class="badge-bestseller">Popular pick</span>';
         } else if (p.is_amazons_choice) {
-          badgeHtml = '<span class="badge-choice">Amazon\'s <span>Choice</span></span>';
+          badgeHtml = '<span class="badge-choice">Aislewise <span>pick</span></span>';
         } else if (p.discount_percent > 15) {
           badgeHtml = `<span class="badge-deal">Save ${p.discount_percent}%</span>`;
         }
@@ -2685,7 +2948,7 @@
               ${p.original_price ? `<span class="card-price-orig">$${p.original_price.toFixed(2)}</span>` : ''}
             </div>
             <div class="card-prime-row">
-              ${p.is_prime ? `<span class="prime-logo">prime</span><span>FREE delivery <strong>Tomorrow</strong></span>` : `<span>Delivery within 3-4 days</span>`}
+              ${p.is_prime ? `<span class="prime-logo">Fast delivery eligible</span>` : `<span>Delivery options at checkout</span>`}
             </div>
             ${p.units_in_stock > 10
               ? `<div class="card-stock">In Stock</div>`
@@ -2784,7 +3047,7 @@
               <span class="pdp-price">$${p.price.toFixed(2)}</span>
               ${p.original_price ? `<span class="pdp-orig-price">Typical price: $${p.original_price.toFixed(2)}</span>` : ''}
               <div style="margin-top: 6px; font-size: 13px; color: #565959;">
-                ${p.is_prime ? `<span class="prime-logo">prime</span> Enjoy FREE Two-Day Delivery` : 'Eligible for Standard Shipping'}
+                ${p.is_prime ? '<span class="prime-logo">Fast delivery eligible</span>' : 'Delivery options available at checkout'}
               </div>
             </div>
 
@@ -2797,7 +3060,7 @@
             <div class="pdp-buybox">
               <div class="pdp-buybox-price">$${p.price.toFixed(2)}</div>
               <div class="pdp-delivery-promise">
-                <i class="fa-solid fa-truck" style="color: #007600;"></i> FREE delivery <strong>Tomorrow</strong> to <span id="pdp-city-label">${document.getElementById('nav-deliver-city').textContent}</span>
+                <i class="fa-solid fa-truck" style="color: #16835d;"></i> Delivery options for <span id="pdp-city-label">${document.getElementById('nav-deliver-city').textContent}</span> at checkout
               </div>
               <div class="card-stock" style="margin-bottom: 8px;">
                 ${p.units_in_stock > 0 ? `${p.units_in_stock} in stock` : 'Currently out of stock'}
@@ -2967,8 +3230,8 @@
           html += `
             <div style="text-align: center; padding: 40px 10px; color: #555;">
               <i class="fa-solid fa-cart-shopping" style="font-size: 42px; color: #ddd; margin-bottom: 12px;"></i>
-              <h3 style="font-size: 16px; margin-bottom: 6px;">Your Amazon Cart is empty</h3>
-              <p style="font-size: 13px; color: #888;">Shop today's deals or check out featured picks.</p>
+              <h3 style="font-size: 16px; margin-bottom: 6px;">Your Aislewise cart is ready.</h3>
+              <p style="font-size: 13px; color: #888;">Find something you love and it will appear here.</p>
             </div>
           `;
         } else {
@@ -3394,7 +3657,7 @@
       document.getElementById('tab-signin').classList.toggle('active', mode === 'signin');
       document.getElementById('tab-register').classList.toggle('active', mode === 'register');
       document.getElementById('auth-register-name-box').style.display = mode === 'register' ? 'block' : 'none';
-      document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'Create your Amazon account' : 'Sign In';
+      document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'Create your Aislewise account' : 'Sign In';
     }
 
     async function submitAuth() {
@@ -3501,16 +3764,16 @@
       input.value = '';
 
       setTimeout(() => {
-        let reply = "I'm happy to help! You can track your package under 'Your Orders' or manage returns free within 30 days.";
+        let reply = "This is a shopping demo. You can review your orders, saved products, and delivery options here.";
         const lower = text.toLowerCase();
-        if (lower.includes('prime') || lower.includes('shipping')) {
-          reply = "All Prime items include FREE Two-Day delivery, and Priority One-Day delivery is available for $4.99 at checkout.";
+        if (lower.includes('shipping') || lower.includes('delivery')) {
+          reply = "Estimated standard and express delivery options are shown during demo checkout.";
         } else if (lower.includes('cancel') || lower.includes('refund')) {
-          reply = "Orders can be cancelled anytime before dispatch right from your 'Your Orders' page with an instant refund to your payment method.";
+          reply = "This portfolio demo does not process real payments, refunds, or shipments.";
         } else if (lower.includes('payment') || lower.includes('card')) {
-          reply = "We accept Amazon Pay Balance, Visa, MasterCard, and Cash on Delivery.";
+          reply = "Checkout is simulated for demonstration only. No payment is processed or card details collected.";
         }
-        log.innerHTML += `<p style="margin-top: 6px; color: var(--navy);"><strong>Amazon Bot:</strong> ${reply}</p>`;
+        log.innerHTML += `<p style="margin-top: 6px; color: var(--navy);"><strong>Aislewise demo assistant:</strong> ${reply}</p>`;
         log.scrollTop = log.scrollHeight;
       }, 500);
     }
@@ -3520,11 +3783,11 @@
     }
 
     function openGiftCardsModal() {
-      showToast('Amazon Gift Cards: Available in denominations from $25 to $500.');
+      showToast('Gift cards are a preview feature and are not available for purchase in this demo.');
     }
 
     function openSellModal() {
-      showToast('Become an Amazon Seller: Start selling to hundreds of millions of customers worldwide!');
+      showToast('Seller tools are a preview feature in this Aislewise demo.');
     }
 
     // Initialize on page load
