@@ -1,0 +1,58 @@
+earliest_snapshot_date,latest_snapshot_date,fulfillment_center_id,fc_name,city,state,country,product_locations,units_in_stock,units_reserved,stockout_product_locations,stockout_flag_mismatches
+2026-10-14,2026-10-14,FC-SEA1,Amazon Fulfillment Center SEA1,Seattle,WA,US,79,5506,254,4,1
+2026-10-24,2026-11-02,FC00000001,Synthetic Fulfillment Center 1,Seattle,Washington,USA,100,22078,2430,6,0
+2026-10-24,2026-11-02,FC00000002,Synthetic Fulfillment Center 2,Austin,Texas,USA,100,23312,2745,6,0
+2026-10-24,2026-11-02,FC00000003,Synthetic Fulfillment Center 3,Chicago,Illinois,USA,100,24546,3071,6,0
+2026-10-24,2026-11-02,FC00000004,Synthetic Fulfillment Center 4,Denver,Colorado,USA,100,25280,3415,6,0
+2026-10-24,2026-11-02,FC00000005,Synthetic Fulfillment Center 5,Boston,Massachusetts,USA,100,22014,3241,6,0
+2026-10-24,2026-11-02,FC00000006,Synthetic Fulfillment Center 6,Phoenix,Arizona,USA,100,22748,3677,6,0
+2026-10-24,2026-11-02,FC00000007,Synthetic Fulfillment Center 7,Atlanta,Georgia,USA,100,23482,3926,6,0
+2026-10-24,2026-11-02,FC00000008,Synthetic Fulfillment Center 8,Dallas,Texas,USA,100,24716,4397,6,0
+2026-10-24,2026-11-02,FC00000009,Synthetic Fulfillment Center 9,Portland,Oregon,USA,100,25950,4877,6,0
+2026-10-24,2026-11-02,FC00000010,Synthetic Fulfillment Center 10,Miami,Florida,USA,100,22184,2134,6,0
+2026-10-24,2026-11-02,FC00000011,Synthetic Fulfillment Center 11,Seattle,Washington,USA,100,23418,2463,6,0
+2026-10-24,2026-11-02,FC00000012,Synthetic Fulfillment Center 12,Austin,Texas,USA,100,24152,2874,6,0
+2026-10-24,2026-11-02,FC00000013,Synthetic Fulfillment Center 13,Chicago,Illinois,USA,100,25386,3231,6,0
+2026-10-24,2026-11-02,FC00000014,Synthetic Fulfillment Center 14,Denver,Colorado,USA,100,21620,2977,6,0
+2026-10-24,2026-11-02,FC00000015,Synthetic Fulfillment Center 15,Boston,Massachusetts,USA,100,22520,3300,5,0
+2026-10-24,2026-11-02,FC00000016,Synthetic Fulfillment Center 16,Phoenix,Arizona,USA,100,23815,3828,5,0
+2026-10-24,2026-11-02,FC00000017,Synthetic Fulfillment Center 17,Atlanta,Georgia,USA,100,24922,4270,6,0
+2026-10-24,2026-11-02,FC00000018,Synthetic Fulfillment Center 18,Dallas,Texas,USA,100,25656,4516,6,0
+2026-10-24,2026-11-02,FC00000019,Synthetic Fulfillment Center 19,Portland,Oregon,USA,100,22390,4178,6,0
+2026-10-24,2026-11-02,FC00000020,Synthetic Fulfillment Center 20,Miami,Florida,USA,100,23124,2260,6,0
+2026-10-24,2026-11-02,FC00000021,Synthetic Fulfillment Center 21,Seattle,Washington,USA,100,23858,2542,6,0
+2026-10-24,2026-11-02,FC00000022,Synthetic Fulfillment Center 22,Austin,Texas,USA,100,25092,2964,6,0
+2026-10-24,2026-11-02,FC00000023,Synthetic Fulfillment Center 23,Chicago,Illinois,USA,100,21326,2841,6,0
+2026-10-24,2026-11-02,FC00000024,Synthetic Fulfillment Center 24,Denver,Colorado,USA,100,22560,3179,6,0
+2026-10-24,2026-11-02,FC00000025,Synthetic Fulfillment Center 25,Boston,Massachusetts,USA,100,23794,3526,6,0
+2026-10-24,2026-11-02,FC00000026,Synthetic Fulfillment Center 26,Phoenix,Arizona,USA,100,24528,3883,6,0
+2026-10-24,2026-11-02,FC00000027,Synthetic Fulfillment Center 27,Atlanta,Georgia,USA,100,25762,4390,6,0
+2026-10-24,2026-11-02,FC00000028,Synthetic Fulfillment Center 28,Dallas,Texas,USA,100,21996,4007,6,0
+2026-10-24,2026-11-02,FC00000029,Synthetic Fulfillment Center 29,Portland,Oregon,USA,100,22730,4284,6,0
+2026-10-24,2026-11-02,FC00000030,Synthetic Fulfillment Center 30,Miami,Florida,USA,100,23964,2344,6,0
+2026-10-24,2026-11-02,FC00000031,Synthetic Fulfillment Center 31,Seattle,Washington,USA,100,25198,2627,6,0
+2026-10-24,2026-11-02,FC00000032,Synthetic Fulfillment Center 32,Austin,Texas,USA,100,21785,2560,5,0
+2026-10-24,2026-11-02,FC00000033,Synthetic Fulfillment Center 33,Chicago,Illinois,USA,100,23080,2900,5,0
+2026-10-24,2026-11-02,FC00000034,Synthetic Fulfillment Center 34,Denver,Colorado,USA,100,23500,3317,6,0
+2026-10-24,2026-11-02,FC00000035,Synthetic Fulfillment Center 35,Boston,Massachusetts,USA,100,24234,3541,6,0
+2026-10-24,2026-11-02,FC00000036,Synthetic Fulfillment Center 36,Phoenix,Arizona,USA,100,25468,3976,6,0
+2026-10-24,2026-11-02,FC00000037,Synthetic Fulfillment Center 37,Atlanta,Georgia,USA,100,21702,3587,6,0
+2026-10-24,2026-11-02,FC00000038,Synthetic Fulfillment Center 38,Dallas,Texas,USA,100,22936,4087,6,0
+2026-10-24,2026-11-02,FC00000039,Synthetic Fulfillment Center 39,Portland,Oregon,USA,100,24170,4597,6,0
+2026-10-24,2026-11-02,FC00000040,Synthetic Fulfillment Center 40,Miami,Florida,USA,100,24904,2516,6,0
+2026-10-24,2026-11-02,FC00000041,Synthetic Fulfillment Center 41,Seattle,Washington,USA,100,21638,2411,6,0
+2026-10-24,2026-11-02,FC00000042,Synthetic Fulfillment Center 42,Austin,Texas,USA,100,22372,2617,6,0
+2026-10-24,2026-11-02,FC00000043,Synthetic Fulfillment Center 43,Chicago,Illinois,USA,100,23106,2954,6,0
+2026-10-24,2026-11-02,FC00000044,Synthetic Fulfillment Center 44,Denver,Colorado,USA,100,24340,3379,6,0
+2026-10-24,2026-11-02,FC00000045,Synthetic Fulfillment Center 45,Boston,Massachusetts,USA,100,25574,3876,6,0
+2026-10-24,2026-11-02,FC00000046,Synthetic Fulfillment Center 46,Phoenix,Arizona,USA,100,21808,3482,6,0
+2026-10-24,2026-11-02,FC00000047,Synthetic Fulfillment Center 47,Atlanta,Georgia,USA,100,23042,3847,6,0
+2026-10-24,2026-11-02,FC00000048,Synthetic Fulfillment Center 48,Dallas,Texas,USA,100,23776,4244,6,0
+2026-10-24,2026-11-02,FC00000049,Synthetic Fulfillment Center 49,Portland,Oregon,USA,100,25050,4757,5,0
+2026-10-24,2026-11-02,FC00000050,Synthetic Fulfillment Center 50,Miami,Florida,USA,100,21345,2055,5,0
+2026-10-14,2026-10-14,FC0001,Hyderabad Demo FC,Hyderabad,Telangana,India,79,3535,363,3,0
+2026-10-14,2026-10-14,FC0002,Bengaluru Demo FC,Bengaluru,Karnataka,India,79,3839,333,5,2
+2026-10-14,2026-10-14,FC0003,Chennai Demo FC,Chennai,Tamil Nadu,India,79,3513,416,5,2
+2026-10-14,2026-10-14,FC0004,Mumbai Demo FC,Mumbai,Maharashtra,India,79,3849,313,4,1
+2026-10-14,2026-10-14,FC0005,Delhi Demo FC,Delhi,Delhi,India,79,3715,357,3,0
+2026-10-14,2026-10-14,SEED001,Demo Fulfillment Center,Seattle,WA,US,79,3548,338,6,1

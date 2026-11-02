@@ -1,26 +1,30 @@
+"""Summarize review ratings without exposing individual review content."""
+
 from pathlib import Path
 
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-csv_path = PROJECT_ROOT / "data" / "processed" / "at_risk_products_reviews.csv"
+CSV_PATH = PROJECT_ROOT / "data" / "processed" / "review_rating_distribution.csv"
 
-df_rev = pd.read_csv(csv_path)
 
-print("=" * 60)
-print("1. INDIVIDUAL REVIEW RATING BREAKDOWN (for Low-Rated Catalog):")
-print(df_rev["individual_review_rating"].value_counts().sort_index())
+def main() -> None:
+    distribution = pd.read_csv(CSV_PATH)
+    if not {"review_rating", "review_count"}.issubset(distribution.columns):
+        raise ValueError("Review summary must contain review_rating and review_count.")
+    if distribution.empty or distribution["review_count"].sum() <= 0:
+        raise ValueError("Review summary contains no rating records.")
 
-print("\n" * 1 + "=" * 60)
-print("2. PRODUCTS WITH MOST NEGATIVE REVIEWS:")
-summary = (
-    df_rev.groupby(["asin", "product_title", "overall_product_rating"])
-    .agg(
-        total_reviews=("review_id", "count"),
-        avg_user_rating=("individual_review_rating", "mean"),
+    total = int(distribution["review_count"].sum())
+    low_count = int(
+        distribution.loc[distribution["review_rating"].le(2), "review_count"].sum()
     )
-    .reset_index()
-    .sort_values(by=["overall_product_rating", "total_reviews"], ascending=[True, False])
-)
+    print("Aggregate synthetic/sample review-rating distribution:")
+    print(distribution.to_string(index=False))
+    print(f"\nTotal review records: {total:,}")
+    print(f"1-2 star records: {low_count:,} ({low_count / total:.1%})")
+    print("Reviewer names, identifiers, and review text are not included.")
 
-print(summary.head(10).to_string(index=False))
+
+if __name__ == "__main__":
+    main()

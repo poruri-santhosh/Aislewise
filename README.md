@@ -2,229 +2,176 @@
 
 ### Commerce that feels effortless. Insights that move inventory.
 
-**Aislewise** is the working product identity for an integrated shopping and retail-insights experience. It brings a browsable storefront, inventory-aware shopping flows, and a practical product analytics pipeline together in one cohesive application.
+Aislewise is a retail commerce and analytics platform built to work across a broad product catalog and related customer, traffic, sales, inventory, fulfillment, and review data. Its analytics workspace combines PostgreSQL extraction, privacy-safe aggregation, DuckDB analysis, reproducible visualizations, and an interactive Streamlit dashboard.
 
-> **A product concept, built to demonstrate the full journey:** help shoppers discover products, give operators useful signals about catalog performance, and connect the experience to real application data.
+> **Scale, stated accurately:** the current database snapshot contains **8,079 products** and **107,702 rows across the 10 extracted operational tables**. The project owner reports **80,000 additional synthetic records** across those tables. That 80,000 figure is supporting records—not 80,000 products. All data is synthetic/demo data and must not be presented as real customer or retail activity.
 
-| Explore | Understand | Improve |
-|---|---|---|
-| Search, compare, and shop in a responsive storefront | Connect catalog, inventory, and product-view data | Turn repeatable analysis into clear portfolio insights |
+**[Open the storefront](https://amazon-clone-phi-flax.vercel.app)** · **Analytics dashboard:** run locally or deploy `streamlit_app.py` with Streamlit Community Cloud.
 
-**[Open the storefront](https://amazon-clone-qcf3bfs86-porurisanthosh674-5041.vercel.app)** · **Streamlit-ready interactive analytics dashboard** · **Built with Flask, PostgreSQL, and Python**
+> **Independent demo:** Aislewise is an Amazon-inspired prototype, not an Amazon service, and is not affiliated with or endorsed by Amazon. Product, customer, traffic, sales, inventory, fulfillment, and review records in the demo database are synthetic. “Aislewise” is a working product name; verify name and trademark availability before commercial use.
 
-> **Independent demo:** Aislewise is not affiliated with or endorsed by Amazon. The current storefront is an Amazon-inspired prototype, not a production retail service. Sample reviews are synthetic demo data, not verified customer feedback. “Aislewise” is a working name; verify name and trademark availability before commercial use.
+## What the platform demonstrates
 
-## Product capabilities
+- Searchable, inventory-aware Flask storefront with catalog, cart, saved items, wishlist, and simulated checkout.
+- Read-only, batched extraction from ten PostgreSQL tables; the application database is never modified by analytics refreshes.
+- DuckDB-backed product, category, brand, and discount analyses.
+- Customer segment, purchase frequency, orders, item-line revenue, traffic-event, inventory, fulfillment, and review-rating summaries.
+- Data quality checks for schema compatibility, duplicate keys, foreign keys, required fields, numerical bounds, stockout flags, and order/item reconciliation.
+- Interactive Streamlit dashboard with category, brand, product-segment, customer-segment, rating, price, recorded-event, and date filters.
+- A versioned, privacy-conscious analytics bundle with no customer identifiers, contact information, raw review text, order IDs, or tracking numbers.
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Storefront | HTML, CSS, JavaScript | Responsive shopping experience and interactive catalog |
-| Web application | Python, Flask | Store pages, APIs, sessions, authentication, cart, wishlist, and checkout |
-| Database | PostgreSQL on Neon | Persistent catalog, customer, traffic, review, inventory, and order data |
-| Analytics | Python, Pandas, Matplotlib | CSV extraction, data-quality checks, EDA, portfolio segmentation, and charts |
-| Analytics UI | Streamlit | Interactive snapshot dashboard, filters, charts, and CSV downloads |
+## Verified dataset snapshot
 
-- Search, autocomplete, category filters, sorting, and product detail views
-- Product ratings, customer reviews, and review submission
-- Session-aware account flows, demo account, cart, saved items, and wishlist
-- Checkout, delivery options, order history, and package tracking
-- Customer support interface and responsive storefront layout
-- A Python analytics workflow for product traffic, portfolio segmentation, and visual reporting
-- A separately deployable Streamlit dashboard for interactive product analysis
+The checked-in dashboard bundle is an **offline snapshot** exported from the existing Neon PostgreSQL database. The figures below describe the snapshot generated on 2026-11-02; refreshing the source database will change counts and may change quality findings.
+
+| Source table | Rows in snapshot | Owner-reported added synthetic records |
+|---|---:|---:|
+| `catalog.dim_products` | 8,079 | 8,000 |
+| `customers.dim_customers` | 5,204 | 5,000 |
+| `fulfillment.dim_fulfillment_centers` | 57 | 50 |
+| `retail_traffic.fact_glance_views` | 40,614 | 33,000 |
+| `retail_sales.fact_orders` | 8,176 | 7,000 |
+| `retail_sales.fact_order_items` | 15,480 | 14,000 |
+| `retail_inventory.fact_fba_inventory_daily` | 21,590 | 5,000 |
+| `catalog.dim_reviews` | 4,280 | 4,000 |
+| `customers.cart_items` | 2,151 | 2,000 |
+| `customers.wishlists` | 2,071 | 1,950 |
+| **Total across the 10 extracted tables** | **107,702** | **80,000** |
+
+These are row counts from different entity and event tables and must not be interpreted as a count of unique people or products. The product catalog itself has 8,079 rows. The bundle contains product-level inventory, daily product traffic events, daily sales summaries, customer-segment aggregates, product review aggregates, and fulfillment-center inventory summaries—not raw customer or order records.
+
+### Snapshot findings
+
+- Product segmentation uses inclusive gates of **20 recorded view events** and **4.2 product rating**: 35 Stars, 2,684 Hidden Gems, 27 At Risk, and 5,333 Dead Weight products in this snapshot.
+- The snapshot contains **40,614 recorded traffic events** across **8,064 products with at least one event**. A recorded event is not a unique visitor.
+- Customer behavior is grouped by six customer segments. “Repeat purchaser” means a customer with at least two orders whose status is not cancelled; it is a snapshot count, not a retention or lifetime-value metric.
+- The source contains **8,176 orders**, **15,480 item lines**, and **29,788 ordered units**. Item-line `net_revenue` totals 31,534,700.11 in source units; this is not profit. The source currency is not independently established by the extract.
+- The snapshot contains **4,280 synthetic review rows**, exported only as rating aggregates.
+
+### Data quality transparency
+
+The extraction reported zero duplicate primary/business keys, broken product/customer/order/fulfillment references, missing required product fields, invalid product prices or ratings, negative inventory, and invalid order-item quantities/values. It also found:
+
+- **875 orders** where `fact_orders.total_amount` differs by more than 0.02 from the sum of item-line `net_revenue`. The two fields may represent different business definitions; this is a reconciliation exception, not an automatic claim that either value is wrong.
+- **136 inventory rows** where `out_of_stock_flag` does not match `units_in_stock = 0`. The source records are retained unchanged and the discrepancy is surfaced in the quality dashboard.
+
+No profit, unique-visitor count, causal discount effect, or conversion rate is inferred. The source does not establish a visitor population and reporting period compatible with order data. Order records do not identify a fulfillment center, so sales are not attributed to centers.
+
+See the generated [`expanded data quality report`](data/expanded/data_quality.json), [`snapshot manifest`](data/expanded/manifest.json), and [`executive analytics report`](reports/PROJECT_SUMMARY_REPORT.md) for the full check results, source counts, definitions, and limitations.
 
 ## Architecture
 
-### Commerce application
-
-The storefront runs as a Flask application on Vercel. PostgreSQL on Neon is the source of truth for catalog, customer, inventory, traffic, and order data. Jinja templates render the web experience; the browser calls Flask routes for catalog and shopping actions. A separate Streamlit app reads only the committed analytics snapshots and report images; it does not connect to Neon and needs no database secrets.
-
 ```mermaid
 flowchart LR
-    shopper["Shopper<br/>Web browser"] -->|HTTPS| vercel["Vercel<br/>deployment + routing"]
-    vercel -->|Page and API requests| flask["Flask application<br/>app.py"]
-    flask -->|Render| templates["Jinja templates<br/>templates/index.html"]
-    templates -->|HTML and JavaScript| shopper
-    flask -->|Parameterized SQL<br/>psycopg2 + TLS| postgres[("Neon PostgreSQL")]
-    snapshot["Bundled analytics data<br/>data/ + reports/"] -->|Read-only CSV and chart files| dashboard["Streamlit dashboard<br/>streamlit_app.py"]
+    shopper["Shopper browser"] -->|HTTPS| vercel["Vercel"]
+    vercel --> flask["Flask storefront and APIs"]
+    flask --> templates["Jinja UI"]
+    flask -->|TLS, parameterized SQL| neon[("Neon PostgreSQL")]
 
-    subgraph appdata["Application data"]
-        catalog["catalog<br/>products, categories, reviews"]
-        customers["customers<br/>profiles, carts, wishlists"]
-        inventory["retail_inventory<br/>daily stock snapshots"]
-        sales["retail_sales<br/>orders and order items"]
-        traffic["retail_traffic<br/>product-view events"]
-    end
-    postgres --- catalog
-    postgres --- customers
-    postgres --- inventory
-    postgres --- sales
-    postgres --- traffic
+    neon -->|Read-only named cursors, batches| extract["Python extraction and validation"]
+    extract -->|Privacy-safe CSV aggregates| bundle["data/expanded snapshot"]
+    bundle -->|DuckDB SQL| analytics["Product, sales, customer, traffic, inventory, review analytics"]
+    analytics --> charts["Matplotlib and Seaborn reports"]
+    bundle --> dashboard["Streamlit dashboard"]
+    charts --> dashboard
 
-    classDef experience fill:#eaf3ff,stroke:#3674b5,color:#14385a
     classDef service fill:#f2ecff,stroke:#7953b5,color:#38215b
-    classDef storage fill:#e7f7f1,stroke:#23836a,color:#164b3c
-    class shopper,templates,dashboard experience
-    class vercel,flask service
-    class postgres,catalog,customers,inventory,sales,traffic,snapshot storage
+    classDef data fill:#e7f7f1,stroke:#23836a,color:#164b3c
+    classDef ui fill:#eaf3ff,stroke:#3674b5,color:#14385a
+    class shopper,templates,dashboard ui
+    class vercel,flask,extract,analytics service
+    class neon,bundle,charts data
 ```
 
-### Product intelligence pipeline
-
-Analytics is an offline, reproducible workflow—not a request-time dependency of the storefront. Export scripts take database snapshots to CSV; Pandas analysis writes derived datasets, findings, and charts.
+### Analytics data flow
 
 ```mermaid
-flowchart LR
-    db[("Neon PostgreSQL<br/>catalog + views + reviews")] -->|Explicit export scripts| raw["Raw CSV snapshots<br/>data/raw/"]
-    raw --> quality["Data quality checks<br/>completeness + distributions"]
-    raw --> portfolio["Portfolio analysis<br/>rating and view segments"]
-    raw --> reviews["Review analysis<br/>at-risk sample"]
-    quality --> derived["Processed insights<br/>data/processed/"]
-    portfolio --> derived
-    reviews --> derived
-    quality --> charts["Visual reports<br/>reports/visualisations/"]
-    portfolio --> charts
-    derived --> report["Executive summary<br/>reports/PROJECT_SUMMARY_REPORT.md"]
-    charts --> report
-
-    classDef source fill:#e7f7f1,stroke:#23836a,color:#164b3c
-    classDef process fill:#eaf3ff,stroke:#3674b5,color:#14385a
-    classDef output fill:#fff3df,stroke:#c47b16,color:#65400c
-    class db,raw source
-    class quality,portfolio,reviews process
-    class derived,charts,report output
+flowchart TD
+    pg[("Neon PostgreSQL<br/>10 source tables")] --> extract["Read-only batched extraction"]
+    extract --> schema["Validate schema and source counts"]
+    extract --> quality["Audit keys, references, ranges and reconciliations"]
+    extract --> privacy["Aggregate; omit customer/order identifiers and review text"]
+    privacy --> csv["Versioned CSV snapshot + JSON manifest"]
+    csv --> duckdb["DuckDB product/category/brand/discount queries"]
+    csv --> streamlit["Cached Streamlit analytics"]
+    duckdb --> derived["Derived analytical CSVs"]
+    derived --> charts["Reproducible Matplotlib/Seaborn visualizations"]
+    charts --> streamlit
+    quality --> dashboard["Published data-quality findings"]
 ```
 
-The raw product CSV is an analytics snapshot, not the application's live database. The product export combines catalog and glance-view data; the review export joins product, traffic, and review data. Pandas reads these snapshots for repeatable analysis. The included sample has **79 products** and fields `asin`, `product_title`, `total_views`, `average_rating`, and `standard_price`.
+### Repository-to-dataset dependency map
 
-### Inventory-aware checkout
-
-Stock is read from the latest inventory snapshot for each product. Checkout locks the matching snapshot rows, checks requested quantities, and records the stock decrement and order in the same database transaction.
-
-```mermaid
-sequenceDiagram
-    participant Shopper
-    participant Storefront
-    participant Flask
-    participant Database
-    Shopper->>Storefront: Submit checkout
-    Storefront->>Flask: POST checkout
-    Flask->>Database: Lock latest inventory rows
-    Database-->>Flask: Available units
-    alt Stock is sufficient
-        Flask->>Database: Decrement stock and create order
-        Flask->>Database: Commit transaction
-        Database-->>Flask: Order saved
-        Flask-->>Storefront: Order confirmation
-        Storefront-->>Shopper: Show confirmation
-    else Stock is insufficient
-        Flask-->>Storefront: Return stock error
-        Storefront-->>Shopper: Explain availability
-    end
-```
-
-The current sample review export is synthetic demo data and should be treated as an example dataset, not verified customer feedback.
-
-### What the sample says
-
-These are reproducible findings from [`data/raw/product_views_analysis.csv`](data/raw/product_views_analysis.csv), a 79-product sample snapshot—not live sales, verified customer behavior, or a complete inventory feed. The segmentation thresholds are inclusive: **high traffic ≥ 20 views** and **high rating ≥ 4.2**.
-
-| Sample finding | Evidence | Suggested operator action |
+| Code or output | Inputs | Outputs / use |
 |---|---|---|
-| At Risk | 27 products have at least 20 recorded views and a product-level rating below 4.2. Studio Headphones Model 16 is rated 3.5 with 33 views. | Audit listing accuracy, quality signals, and feedback before increasing promotion. Individual review data is synthetic and must not be treated as customer evidence. |
-| Hidden Gems | 17 products meet the rating gate but have fewer than 20 recorded views. The MacBook Air sample row is rated 4.9 with 0 recorded views. | Validate event coverage and ASIN joins first; then consider a measured discoverability experiment. |
-| Stars | 35 products meet both gates. The iPhone 15 Pro Max has 2,803 views and a 4.8 product-level rating. | Protect availability and listing quality; test cross-sell opportunities. |
-| No recorded views | 15 products have zero views in this extract. | Investigate tracking, reporting period, and catalog visibility before inferring no demand. |
-| Price is not a useful single lever in this sample | The report's price–views Pearson correlation is −0.0571. This is descriptive association, not causation. | Test merchandising and discovery changes instead of assuming price reductions will lift traffic. |
+| `eda/expanded_pipeline.py` | Neon source tables through `app.database_connection` | `data/expanded/*.csv` (including product segmentation recommendations), `manifest.json`, `data_quality.json` |
+| `eda/data_loader.py` | `product_performance.csv` | Shared product frame for EDA scripts |
+| `eda/01_data_understanding.py`, `02_data_quality.py`, `03_univariate_analysis.py`, `05_actionable_insights.py`, `find_at_risk.py` | Shared expanded product frame | Console summaries, segmentation analysis, and risk insights |
+| `eda/segmentation.py` | `product_segmentation_recommendations.csv` | Expanded portfolio scatter plot |
+| `eda/visualisations/expanded.py` | Aggregated expanded CSVs | Expanded chart PNGs under `reports/visualisations/expanded/` |
+| `eda/visualisations/*.py`, `eda/segmentation.py` | Shared expanded product frame / segmentation output | Additional expanded product plots |
+| `streamlit_app.py` | Cached expanded CSVs, JSON reports, chart PNGs | Interactive analytics; no database query on widget reruns |
+| `tests/test_analytics_snapshot.py` | Checked-in aggregate bundle and dashboard | Offline pipeline, privacy, quality, chart, and UI tests; optional read-only DB test |
 
-Inventory quantities, conversion, revenue, and returns are not columns in this CSV, so this snapshot cannot identify specific inventory shortages or prove the effect of a business action. See the [EDA report](reports/PROJECT_SUMMARY_REPORT.md) for additional methodology, review-sample caveats, and limitations.
+## Analytics and metric definitions
 
-### Walkthrough
+| Area | Definition and guardrail |
+|---|---|
+| Product performance | Catalog rating, recorded view-event count, units ordered, item-line `net_revenue`, review aggregates, and latest available inventory by product. |
+| Portfolio segments | Stars: rating ≥ 4.2 and events ≥ 20; Hidden Gems: rating ≥ 4.2 and events < 20; At Risk: rating < 4.2 and events ≥ 20; Dead Weight: rating < 4.2 and events < 20. Product traffic is event count, not people. |
+| Category and brand | Product counts, recorded events, units, item-line net revenue, mean product rating, and inventory. Descriptive summaries only. |
+| Customer intelligence | Counts grouped by customer segment; purchaser count and repeat-purchaser count use orders excluding cancelled statuses. Customer-level rows and identifiers are not exported. |
+| Sales | Daily order counts, units, order-level amount, and item-line net revenue are kept separate; totals are not assumed to be interchangeable. No cost table exists, so profit is not calculated. |
+| Traffic | Events grouped by date and product, including buy-box-winning event counts. No unique visitors or conversion rates are calculated. |
+| Inventory | Latest available daily snapshot per product, summed across fulfillment centers; snapshot dates may differ by product. Stockout-flag discrepancies are reported. |
+| Reviews | Per-product and rating-distribution aggregates only. Review data is synthetic; raw review text and reviewer details are excluded. |
+| Fulfillment | Inventory and stockout footprint by center. Orders have no center key, so order/sales performance is not attributed to a center. |
+| Discount | Units and item-line amounts grouped into catalog discount bands. Observational results do not prove discounts caused changes. |
 
-1. Open the [hosted storefront](https://amazon-clone-qcf3bfs86-porurisanthosh674-5041.vercel.app) and explore search, category filters, and a product detail page. Checkout availability depends on the hosted database's current inventory.
-2. Follow the [local setup](#run-it-locally) to seed a database you control, then try cart, wishlist, and checkout flows with that demo data.
-3. Review the [portfolio segmentation chart](reports/visualisations/SEGMENTATION.png), [traffic distribution](reports/visualisations/product_views_distribution.png), and [executive findings](reports/PROJECT_SUMMARY_REPORT.md).
+## Visual report previews
 
-No screen-recorded product demo is currently included; this walkthrough is a repeatable click-through guide rather than a claim that a video exists.
+These PNGs are generated from the expanded snapshot—not manually edited:
 
-### Analytics visuals
+![Expanded product portfolio segments](reports/visualisations/expanded/product_segments.png)
 
-All generated charts are saved in [`reports/visualisations/`](reports/visualisations/).
+![Category performance](reports/visualisations/expanded/category_performance.png)
 
-#### Portfolio segmentation
+![Daily sales and traffic reports](reports/visualisations/expanded/sales_trend.png)
 
-Products are grouped using two explicit gates: high rating is **≥ 4.2** and high traffic is **≥ 20 views**.
+![Inventory by fulfillment center](reports/visualisations/expanded/inventory_by_center.png)
 
-![Product portfolio segmentation matrix](reports/visualisations/SEGMENTATION.png)
+The complete dashboard also includes product and brand explorers, date/category/brand/segment filters, sales and traffic tables, stockout monitoring, review aggregates, fulfillment summaries, and a data-quality tab.
 
-#### Traffic distribution and outlier check
+## Data dictionary and storage layout
 
-The boxplot applies the 1.5×IQR outlier rule. The histogram zooms into the 0–100-view range so the bulk of products is visible beside high-traffic outliers.
-
-![Product views boxplot](reports/visualisations/product_views_boxplot.png)
-
-![Product views distribution](reports/visualisations/product_views_distribution.png)
-
-#### Price, traffic, and rating relationships
-
-The correlation heatmap and scatter plot summarize linear association in this dataset; correlation is descriptive and does not imply causation.
-
-![Product metric correlation heatmap](reports/visualisations/product_metrics_correlation.png)
-
-![Product price versus views](reports/visualisations/product_price_vs_views.png)
-
-See the [executive EDA report](reports/PROJECT_SUMMARY_REPORT.md) for findings, segment counts, review-audit caveats, and recommended actions.
-
-## Data model
-
-The schema is defined in [`schema.sql`](schema.sql). The application and analysis scripts use these logical areas:
-
-| Schema | Example tables | Role |
-|---|---|---|
-| `catalog` | `dim_products`, `dim_categories`, `dim_reviews` | Product catalog, categories, and reviews |
-| `customers` | `dim_customers`, `cart_items`, `wishlists` | Customer profiles and shopping state |
-| `retail_traffic` | `fact_glance_views` | Product traffic events used in analytics |
-| `retail_inventory` | `fact_fba_inventory_daily` | Inventory availability |
-| `retail_sales` | `fact_orders`, `fact_order_items` | Order and line-item records |
-| `fulfillment` | `dim_fulfillment_centers` | Fulfillment center reference data |
-
-## Repository layout
+See [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) for source table descriptions, published dataset fields, grain, privacy, and metric definitions.
 
 ```text
 .
-├── app.py                         # Flask application
-├── streamlit_app.py               # Interactive, snapshot-based analytics dashboard
-├── .streamlit/
-│   └── config.toml                # Aislewise dashboard theme
-├── vercel.json                    # Vercel function configuration
-├── templates/
-│   └── index.html                 # Storefront UI
-├── data/
-│   ├── raw/                       # Source analytics CSV snapshot
-│   └── processed/                 # Segmentation and review CSV outputs
+├── app.py
+├── streamlit_app.py
 ├── eda/
-│   ├── portfolio.py               # Shared, tested segmentation rules
-│   ├── visualisations/            # Chart-generation scripts
-│   └── *.py                       # EDA, exports, and portfolio analysis
-├── tests/
-│   └── test_analytics_snapshot.py # Offline analytics tests (no database)
+│   ├── expanded_pipeline.py
+│   ├── data_loader.py
+│   ├── portfolio.py
+│   └── visualisations/
+│       └── expanded.py
+├── data/
+│   └── expanded/                  # Sanitized, reproducible analytical snapshot
 ├── reports/
-│   ├── visualisations/            # Generated PNG charts embedded above
-│   └── PROJECT_SUMMARY_REPORT.md  # Executive analysis report
-├── schema.sql                     # PostgreSQL DDL
-├── seed_data.py                  # Demo database seeding
-├── requirements.txt              # Storefront dependencies
-└── requirements-eda.txt          # Analytics dependencies
+│   ├── PROJECT_SUMMARY_REPORT.md
+│   └── visualisations/expanded/   # Generated expanded-dataset charts
+├── tests/test_analytics_snapshot.py
+├── schema.sql
+├── requirements.txt
+└── requirements-eda.txt
 ```
 
-## Run it locally
+## Run locally
 
-### 1. Requirements
+### Install and configure
 
-- Python 3.10 or newer
-- A PostgreSQL database (Neon is used by the hosted demo)
-- Optional: `psql` to initialize the schema from the command line
-
-### 2. Install dependencies and configure environment
+Python 3.10+ and a PostgreSQL database are required for refreshing the database snapshot. The dashboard can run offline from the checked-in snapshot.
 
 ```powershell
 python -m venv .venv
@@ -234,7 +181,7 @@ python -m pip install -r requirements-eda.txt
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and set your own values:
+Set secrets only in your local `.env` or hosting-provider secret manager:
 
 ```dotenv
 DATABASE_URL=postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require
@@ -242,136 +189,59 @@ FLASK_SECRET_KEY=replace-with-a-long-random-secret
 FLASK_DEBUG=false
 ```
 
-Generate a session secret with:
+Never commit `.env`, `.env.local`, passwords, or real connection URLs. Analytics exports contain aggregated synthetic data only. Do not run `seed_data.py` or the database-mutating `test_suite.py` against production.
+
+### Refresh the expanded analytical bundle
+
+The refresh requires `DATABASE_URL` and reads the database in a read-only transaction. It inspects the actual schema, streams table queries in batches, omits customer identifiers and review text, writes aggregate CSV/JSON outputs, and runs DuckDB analyses. It does not insert, update, delete, truncate, or recreate database rows.
 
 ```powershell
-python -c "import secrets; print(secrets.token_hex(32))"
+python eda/expanded_pipeline.py
+python eda/visualisations/expanded.py
 ```
 
-Keep real credentials in `.env` or the hosting provider's secret manager. **Never commit `.env` or put real connection strings in Python, notebooks, screenshots, or documentation.** The repository ignores `.env`; `.env.example` contains placeholders only.
-
-### 3. Initialize and seed the database
-
-Create the database tables using [`schema.sql`](schema.sql), then load demo records with [`seed_data.py`](seed_data.py). Both use the `DATABASE_URL` from `.env`. Run these only against a development database you control.
+Optional EDA scripts use the expanded snapshot and do not need a database connection:
 
 ```powershell
-psql $env:DATABASE_URL -f schema.sql
-python seed_data.py
-```
-
-### 4. Start the web application
-
-```powershell
-python app.py
-```
-
-Open <http://127.0.0.1:5000>.
-
-### 5. Run the analytics workflow
-
-The EDA scripts use paths relative to the repository, so run from the project root. The database export steps are optional if you want to use the included CSV snapshots.
-
-```powershell
-# Optional: refresh the raw product/traffic snapshot from Neon
-python eda/export_product_views.py
-
-# Inspect, validate, and segment the CSV snapshot
 python eda/01_data_understanding.py
 python eda/02_data_quality.py
 python eda/03_univariate_analysis.py
 python eda/05_actionable_insights.py
 python eda/find_at_risk.py
-
-# Optional: export the at-risk product review sample from Neon
-python eda/export_reviews_analysis.py
-python eda/low_rated_reviews.py
-
-# Generate all PNG charts
+python eda/segmentation.py
 python eda/visualisations/boxplots.py
 python eda/visualisations/distributions.py
 python eda/visualisations/ratings_analysis.py
 python eda/visualisations/views_vs_price.py
-python eda/segmentation.py
 ```
 
-Outputs:
+### Run the Flask storefront and analytics dashboard
 
-- Raw product snapshot: `data/raw/product_views_analysis.csv`
-- Segmentation and review extracts: `data/processed/`
-- Generated chart images: `reports/visualisations/`
+```powershell
+python app.py
+python -m streamlit run streamlit_app.py
+```
 
-### 6. Tests
+The Flask app serves at <http://127.0.0.1:5000>. Streamlit loads the checked-in aggregate snapshot and uses Streamlit caching; interactive filters do not query Neon.
+
+### Tests
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-The offline analytics suite currently has **6 automated tests**. It checks the checked-in snapshot's schema and 79-row size, unique product IDs and valid metrics, inclusive segment-threshold edge cases, expected segment totals (35 Stars, 17 Hidden Gems, 27 At Risk, 0 Dead Weight), zero-view/high-rating handling, and that the Streamlit dashboard renders without errors. These tests read the local CSV and do not require a database.
+Tests cover bundle completeness, source and aggregate reconciliation, identifier exclusion, quality exceptions, inclusive segmentation thresholds, chart generation, and Streamlit rendering. A read-only live database check runs only when `DATABASE_URL` is configured; it verifies schema-backed product completeness and traffic references. Storefront integration tests in `test_suite.py` write records and must only be run against a disposable development database.
 
-The separate [`test_suite.py`](test_suite.py) contains **13 database integration checks** for storefront, catalog, search, cart, wishlist, customer updates, reviews, checkout, orders, and cancellation. It writes customer, cart, review, order, and inventory data; run it only against a disposable, seeded development database, never production:
+## Publish
 
-```powershell
-python test_suite.py
-```
+### Streamlit Community Cloud
 
-The integration checks have not been run as part of this README update. No pass/fail result is claimed for them.
+Deploy `streamlit_app.py` from the repository root. The dashboard requires no database secret because it reads the checked-in, privacy-safe CSV and JSON snapshots and generated chart files. Push refreshed snapshot and chart files when publishing a new analytics release.
 
-## Publish the analytics dashboard on Streamlit Community Cloud
+### Vercel storefront
 
-The Streamlit dashboard is a separate app from the Flask/Vercel storefront. It reads the checked-in product snapshot and saved charts, so it requires no Neon connection string, Vercel environment variables, or database secrets. Keep the GitHub repository accessible to the Streamlit account that will deploy it.
+The Flask storefront is deployed from the repository root. Configure `DATABASE_URL` and `FLASK_SECRET_KEY` as Vercel environment variables for the required environments. Keep Vercel's Root Directory at the repository root; the analytics refresh and Streamlit dashboard are separate from the storefront deployment.
 
-### Run locally
+## License and data notice
 
-From the repository root:
-
-```powershell
-python -m pip install -r requirements.txt
-python -m streamlit run streamlit_app.py
-```
-
-The dashboard includes interactive portfolio, distribution, and relationship charts; filters for product, segment, rating, price, and recorded views; a downloadable filtered CSV; committed report-image previews; and a clearly labeled synthetic-review sample. All charts use the bundled snapshot and respond to the active filters.
-
-### Deploy from GitHub
-
-1. Push the repository to GitHub and sign in to [Streamlit Community Cloud](https://share.streamlit.io/).
-2. Select **Create app**, choose `poruri-santhosh/AMAZON-CLONE`, branch `main`, and main file path `streamlit_app.py`.
-3. Keep the repository root as the app working directory. No secrets or custom install command are required; Streamlit installs the dependencies from the root `requirements.txt`.
-4. Deploy. The public URL is issued by Streamlit Community Cloud after the build completes.
-
-On each app reboot, Streamlit installs the declared root dependencies. The CSV snapshots and chart PNGs must remain committed and within the repository, because they are the dashboard's data inputs. To refresh them, run the documented EDA workflow, review the output and synthetic-data caveats, then commit the intended assets.
-
-## Deploy to Vercel
-
-The repository root is the Vercel project root. Vercel detects the Flask application exported as `app` from `app.py`; `vercel.json` ensures the Jinja templates are included in the function bundle. Do not set the Vercel Root Directory to `api` or install `requirements-eda.txt` for the storefront.
-
-### Configure the project
-
-1. Create/configure the PostgreSQL database and apply `schema.sql`. Seed it with `python seed_data.py` if it does not already contain the catalog and demo records.
-2. In the Vercel project, set these **Production** environment variables under **Settings → Environment Variables**:
-   - `DATABASE_URL`: the PostgreSQL/Neon connection URL. Use a URL reachable from Vercel and allow SSL; the app connects with `sslmode=require`.
-   - `FLASK_SECRET_KEY`: a long, random secret unique to this deployment. Generate one with `python -c "import secrets; print(secrets.token_hex(32))"`.
-3. If deploying from Git, import the repository `poruri-santhosh/AMAZON-CLONE` and leave **Root Directory** at the repository root (the default). Leave the Framework Preset on automatic detection and do not add a custom build command.
-
-The app intentionally fails during Vercel startup if `FLASK_SECRET_KEY` is missing. If database configuration is missing or incorrect, storefront requests cannot load; verify `DATABASE_URL`, the schema, and database connectivity before deploying.
-
-### Deploy from the terminal
-
-Run these commands from the repository root after installing the storefront dependencies:
-
-```powershell
-python -m pip install -r requirements.txt
-vercel login
-vercel link
-vercel
-vercel --prod
-```
-
-During `vercel link`, select the existing `porurisanthosh674-5041/amazon-clone` project. Configure the environment variables in the Vercel dashboard before promoting a deployment to production. To test a preview deployment (`vercel`) against the database, add the variables to the Preview environment too; use a development database there when possible. Check the homepage and `/api/products` before running `vercel --prod`. Each deployment needs the correct environment variables enabled for its target environment.
-
-After deployment, verify the homepage and `/api/products`. Confirm product availability against the latest inventory snapshot in the configured database. Do not commit `.env` or paste database credentials into source files or chat.
-
-Do not commit environment secrets. The analytics CSV snapshots and report images are committed as project/demo assets; refresh them only from a database you are authorized to query.
-
-## Brand and attribution
-
-Aislewise is the working product identity used in this README; it does not change the current storefront UI branding. The interface is an independent Amazon-inspired demonstration and is not affiliated with Amazon. Amazon and other third-party names and marks belong to their respective owners. Review the included assets and data before any public or commercial launch, and add an appropriate license before redistributing this code.
+This repository is an independent portfolio demonstration. Product/catalog imagery and synthetic demo content may be sourced from third-party or generated data; verify the terms of any assets before commercial use. No real customer behavior is claimed.

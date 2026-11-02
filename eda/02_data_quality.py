@@ -23,6 +23,7 @@ print(
 print("\n--- 5. ZERO-VIEW PRODUCTS ---")
 zero_views = df[df["total_views"] == 0]
 print("Count:", len(zero_views))
-print(zero_views[["asin", "product_title", "total_views"]])
+if not zero_views.empty:
+    print(zero_views[["asin", "product_title", "total_views"]].head(10).to_string(index=False))
 
 print("\n--- 6. QUALITY CHECK COMPLETE ---")

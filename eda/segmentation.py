@@ -6,6 +6,10 @@ sys.path.append(
         os.path.join(os.path.dirname(__file__), "..")
     )
 )
+import matplotlib
+
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from portfolio import HIGH_RATING, HIGH_TRAFFIC_VIEWS
@@ -14,13 +18,13 @@ csv_path = os.path.join(
     os.path.dirname(__file__),
     "..",
     "data",
-    "processed",
+    "expanded",
     "product_segmentation_recommendations.csv",
 )
 
 df = pd.read_csv(csv_path)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations")
+IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "expanded")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 plt.figure(figsize=(11, 7))
@@ -66,46 +70,15 @@ plt.axhline(
     label=f"Traffic Threshold ({TRAFFIC_GATE})",
 )
 
-# Strategic Quadrant Labels positioned cleanly based on your data spread
-plt.text(
-    4.6,
-    1500,
-    "STARS\n(Maintain & Upsell)",
-    fontsize=10,
-    fontweight="bold",
-    color="#1b661b",
-    ha="center",
-    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8, edgecolor="#2ca02c"),
-)
-plt.text(
-    4.6,
-    5,
-    "HIDDEN GEMS\n(Boost Search & Ads)",
-    fontsize=10,
-    fontweight="bold",
-    color="#125688",
-    ha="center",
-    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8, edgecolor="#1f77b4"),
-)
-plt.text(
-    3.6,
-    1500,
-    "AT RISK\n(Quality / Review Audit)",
-    fontsize=10,
-    fontweight="bold",
-    color="#b25000",
-    ha="center",
-    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8, edgecolor="#ff7f0e"),
-)
-
 plt.title(
-    "Amazon Product Portfolio Segmentation Matrix",
+    f"Aislewise Expanded Product Portfolio ({len(df):,} products)",
     fontsize=14,
     fontweight="bold",
     pad=15,
 )
 plt.xlabel("Average Rating (Stars)", fontsize=11, fontweight="bold")
-plt.ylabel("Total Product Views", fontsize=11, fontweight="bold")
+plt.ylabel("Recorded view events (symlog scale)", fontsize=11, fontweight="bold")
+plt.yscale("symlog", linthresh=1)
 plt.legend(loc="upper left", bbox_to_anchor=(1, 1), frameon=True)
 plt.grid(True, linestyle=":", alpha=0.5)
 plt.tight_layout()

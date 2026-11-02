@@ -1,0 +1,60 @@
+{
+  "dataset_version": "aislewise-retail-analytics-v1",
+  "export_reconciliation": {
+    "customers_match_source": 5204,
+    "order_lines_match_source": 15480,
+    "orders_match_source": 8176,
+    "product_asins_unique": 8079,
+    "product_rows_match_source": 8079,
+    "reviews_match_source": 4280,
+    "shopping_intent_products_match_catalog": 8079,
+    "traffic_events_match_source": 40614
+  },
+  "extracted_at_utc": "2026-11-02T19:23:13.503174+00:00",
+  "observed_rows_across_extracted_tables": 107702,
+  "owner_reported_synthetic_addition_total": 80000,
+  "owner_reported_synthetic_additions": {
+    "catalog.dim_products": 8000,
+    "catalog.dim_reviews": 4000,
+    "customers.cart_items": 2000,
+    "customers.dim_customers": 5000,
+    "customers.wishlists": 1950,
+    "fulfillment.dim_fulfillment_centers": 50,
+    "retail_inventory.fact_fba_inventory_daily": 5000,
+    "retail_sales.fact_order_items": 14000,
+    "retail_sales.fact_orders": 7000,
+    "retail_traffic.fact_glance_views": 33000
+  },
+  "persisted_output_rows": {
+    "brand_performance.csv": 26,
+    "category_performance.csv": 30,
+    "customer_segments.csv": 6,
+    "discount_effectiveness.csv": 5,
+    "inventory_by_center.csv": 57,
+    "orders_daily.csv": 4242,
+    "product_performance.csv": 8079,
+    "product_sales.csv": 8067,
+    "product_segmentation_recommendations.csv": 8079,
+    "products.csv": 8079,
+    "review_rating_distribution.csv": 5,
+    "reviews_by_product.csv": 4079,
+    "shopping_intent_by_product.csv": 8079,
+    "traffic_daily.csv": 33405
+  },
+  "privacy_note": "Only catalog product attributes and aggregated behavior are persisted. No customer identifiers, contact details, raw review text, order IDs, or tracking numbers.",
+  "product_rows": 8079,
+  "quality_report": "data_quality.json",
+  "source": "Existing Neon PostgreSQL database; read-only transaction",
+  "source_table_rows": {
+    "catalog.dim_products": 8079,
+    "catalog.dim_reviews": 4280,
+    "customers.cart_items": 2151,
+    "customers.dim_customers": 5204,
+    "customers.wishlists": 2071,
+    "fulfillment.dim_fulfillment_centers": 57,
+    "retail_inventory.fact_fba_inventory_daily": 21590,
+    "retail_sales.fact_order_items": 15480,
+    "retail_sales.fact_orders": 8176,
+    "retail_traffic.fact_glance_views": 40614
+  }
+}

@@ -21,8 +21,8 @@ df["segment"] = df.apply(
 
 # 2. Print Segment Counts
 print("=" * 65)
-print("AMAZON PRODUCT SEGMENT COUNTS:")
-print(df["segment"].value_counts())
+print("AISLEWISE PRODUCT SEGMENT COUNTS:")
+print(df["segment"].value_counts().sort_index())
 print("=" * 65)
 
 # 3. Focus on "Hidden Gems" (Top Priority for Marketing Team)
@@ -66,7 +66,7 @@ print(
 output_path = os.path.join(
     str(Path(__file__).resolve().parents[1]),
     "data",
-    "processed",
+    "expanded",
     "product_segmentation_recommendations.csv",
 )
 os.makedirs(os.path.dirname(output_path), exist_ok=True)

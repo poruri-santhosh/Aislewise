@@ -8,6 +8,10 @@ sys.path.append(
     )
 )
 
+import matplotlib
+
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
 from data_loader import load_data
@@ -20,7 +24,7 @@ print("--- Correlation Matrix ---")
 print(correlation)
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations")
+IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "expanded")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -37,7 +41,7 @@ for row in range(len(columns)):
             va="center",
             color="black",
         )
-ax.set_title("Product Price, Views & Rating Correlations")
+ax.set_title(f"Expanded product metric correlations ({len(df):,} products)")
 fig.colorbar(image, ax=ax, label="Pearson correlation")
 fig.tight_layout()
 

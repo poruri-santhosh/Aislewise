@@ -1,0 +1,7 @@
+customer_segment,customer_count,purchasers,repeat_purchasers,non_cancelled_orders,order_total_amount
+Business,34,34,34,341,2533688.00
+New,1250,1250,500,1750,5183142.07
+Premium,1250,1250,500,1750,5151264.40
+Prime,1313,1063,449,1829,7899310.32
+Regular,1250,1250,500,1750,5154751.15
+Standard,107,104,57,390,3696768.24

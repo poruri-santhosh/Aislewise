@@ -8,12 +8,16 @@ sys.path.append(
     )
 )
 
+import matplotlib
+
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 from data_loader import load_data
 
 df = load_data()
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations")
+IMAGE_DIR = os.path.join(PROJECT_ROOT, "reports", "visualisations", "expanded")
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 views = df["total_views"]
@@ -49,8 +53,8 @@ outlier_rows = df.loc[
     (views < lower) | (views > upper)
 ]
 
-print("\nOutlier products:")
-print(outlier_rows.to_string(index=False))
+print(f"\nOutlier product preview ({len(outlier_rows):,} total):")
+print(outlier_rows.head(20).to_string(index=False))
 
 
 print("*"*100)
@@ -58,8 +62,8 @@ plt.figure(figsize=(10, 5))
 
 plt.boxplot(df["total_views"], orientation="horizontal")
 
-plt.title("Box Plot of Product Views")
-plt.xlabel("Total Views")
+plt.title(f"Product View-Event Distribution ({len(df):,} products)")
+plt.xlabel("Recorded view events")
 
 plt.tight_layout()
 output_path = os.path.join(IMAGE_DIR, "product_views_boxplot.png")

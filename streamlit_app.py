@@ -1,6 +1,7 @@
 """Aislewise's interactive, snapshot-based retail analytics dashboard."""
 
 from pathlib import Path
+import json
 import sys
 
 import matplotlib.pyplot as plt
@@ -8,14 +9,14 @@ import pandas as pd
 import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-DATA_PATH = PROJECT_ROOT / "data" / "raw" / "product_views_analysis.csv"
-REVIEW_PATH = PROJECT_ROOT / "data" / "processed" / "at_risk_products_reviews.csv"
 VISUALS_PATH = PROJECT_ROOT / "reports" / "visualisations"
 EDA_PATH = PROJECT_ROOT / "eda"
+EXPANDED_PATH = PROJECT_ROOT / "data" / "expanded"
+EXPANDED_MANIFEST = EXPANDED_PATH / "manifest.json"
 if str(EDA_PATH) not in sys.path:
     sys.path.insert(0, str(EDA_PATH))
 
-from portfolio import HIGH_RATING, HIGH_TRAFFIC_VIEWS, classify_product
+from portfolio import HIGH_RATING, HIGH_TRAFFIC_VIEWS
 
 SEGMENT_COLORS = {
     "Stars (High Traffic, High Rating)": "#16856b",
@@ -54,52 +55,52 @@ st.markdown(
 )
 
 
-@st.cache_data
-def load_products(path: str, modified_time: float) -> pd.DataFrame:
-    """Load and validate the bundled product snapshot."""
-    del modified_time
-    data = pd.read_csv(path)
-    required = {
-        "asin",
-        "product_title",
-        "total_views",
-        "average_rating",
-        "standard_price",
-    }
-    missing = required.difference(data.columns)
-    if missing:
-        raise ValueError(f"Product snapshot is missing required columns: {', '.join(sorted(missing))}")
-
-    data = data.copy()
-    for column in ("total_views", "average_rating", "standard_price"):
-        data[column] = pd.to_numeric(data[column], errors="raise")
-
-    if data.empty:
-        raise ValueError("Product snapshot contains no products.")
-    if data[list(required)].isnull().any().any():
-        raise ValueError("Product snapshot contains missing values in required fields.")
-    if (data["total_views"] < 0).any():
-        raise ValueError("Product snapshot contains negative view counts.")
-    if (data["standard_price"] <= 0).any():
-        raise ValueError("Product snapshot contains non-positive prices.")
-    if (~data["average_rating"].between(0, 5)).any():
-        raise ValueError("Product snapshot contains ratings outside the 0–5 range.")
-
-    data["segment"] = data.apply(
-        lambda row: classify_product(row["total_views"], row["average_rating"]),
-        axis=1,
-    )
-    return data
-
-
 def format_number(value: float) -> str:
     return f"{value:,.0f}"
 
 
 @st.cache_data
-def load_review_sample(path: str, modified_time: float) -> pd.DataFrame:
-    del modified_time
-    return pd.read_csv(path)
+
+
+@st.cache_data
+def load_expanded_snapshot(path: str, fingerprint: tuple[tuple[str, float], ...]) -> dict:
+    """Load the pre-aggregated, privacy-safe expanded analytics bundle."""
+    del fingerprint
+    root = Path(path)
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    dataset = {
+        "manifest": manifest,
+        "quality": json.loads((root / "data_quality.json").read_text(encoding="utf-8")),
+    }
+    for filename in (
+        "product_performance.csv",
+        "category_performance.csv",
+        "brand_performance.csv",
+        "discount_effectiveness.csv",
+        "orders_daily.csv",
+        "traffic_daily.csv",
+        "customer_segments.csv",
+        "inventory_by_center.csv",
+        "review_rating_distribution.csv",
+    ):
+        dataset[filename.removesuffix(".csv")] = pd.read_csv(root / filename)
+    return dataset
+
+
+def filter_dates(data: pd.DataFrame, column: str, selected_range: tuple) -> pd.DataFrame:
+    if data.empty or not selected_range:
+        return data
+    dates = pd.to_datetime(data[column], errors="coerce")
+    start, end = selected_range
+    return data.loc[dates.between(pd.Timestamp(start), pd.Timestamp(end))]
+
+
+def normalize_date_range(selected_range):
+    if isinstance(selected_range, (tuple, list)) and len(selected_range) == 2:
+        return selected_range
+    if selected_range:
+        return (selected_range, selected_range)
+    return None
 
 
 def apply_filters(
@@ -196,21 +197,32 @@ def render_relationship_charts(data: pd.DataFrame) -> None:
         plt.close(fig)
 
 
+with st.sidebar:
+    st.header("Expanded analytics")
+    st.caption("The dashboard uses the bundled, privacy-safe database snapshot.")
+
 try:
-    products = load_products(str(DATA_PATH), DATA_PATH.stat().st_mtime)
-except (OSError, pd.errors.ParserError, ValueError) as error:
-    st.error(f"Could not load the bundled product snapshot: {error}")
+    bundle_files = sorted(EXPANDED_PATH.glob("*.csv"))
+    fingerprint = tuple(
+        [(path.name, path.stat().st_mtime) for path in bundle_files]
+        + [("manifest.json", EXPANDED_MANIFEST.stat().st_mtime)]
+    )
+    expanded = load_expanded_snapshot(str(EXPANDED_PATH), fingerprint)
+    products = expanded["product_performance"].rename(
+        columns={
+            "rating": "average_rating",
+            "traffic_event_count": "total_views",
+        }
+    )
+    products["segment"] = products["segment"].astype(str)
+    if len(products) != int(expanded["manifest"]["product_rows"]):
+        raise ValueError("Expanded product rows do not match the dataset manifest.")
+except (OSError, KeyError, pd.errors.ParserError, ValueError, json.JSONDecodeError) as error:
+    st.error(f"Could not load the expanded analytics snapshot: {error}")
     st.stop()
 
-st.markdown('<p class="eyebrow">Aislewise · Product intelligence</p>', unsafe_allow_html=True)
-st.title("See the catalog from every angle.")
-st.caption(
-    "An interactive view of the bundled 79-product analytics sample. "
-    "This dashboard is a snapshot—not live inventory, sales, or verified customer behavior."
-)
-
 with st.sidebar:
-    st.header("Explore the snapshot")
+    st.header("Explore products")
     search_query = st.text_input("Find a product", placeholder="Product name or ASIN")
     selected_segments = st.multiselect(
         "Portfolio segments",
@@ -224,20 +236,45 @@ with st.sidebar:
         float(products["standard_price"].max()),
     )
     selected_prices = st.slider(
-        "Listed price range (dataset units)",
+        "Listed price range",
         min_value=price_bounds[0],
         max_value=price_bounds[1],
         value=price_bounds,
     )
     view_bounds = (int(products["total_views"].min()), int(products["total_views"].max()))
     selected_views = st.slider(
-        "Recorded view range",
+        "Recorded view-event range",
         min_value=view_bounds[0],
         max_value=view_bounds[1],
         value=view_bounds,
     )
+    category_options = sorted(products["category"].dropna().astype(str).unique()) if "category" in products else []
+    selected_categories = st.multiselect("Categories", category_options, default=category_options)
+    brand_options = sorted(products["brand"].dropna().astype(str).unique()) if "brand" in products else []
+    selected_brands = st.multiselect("Brands", brand_options, default=brand_options)
+    customer_segment_options = sorted(
+        expanded["customer_segments"]["customer_segment"].dropna().astype(str).unique()
+    )
+    selected_customer_segments = st.multiselect(
+        "Customer segments",
+        customer_segment_options,
+        default=customer_segment_options,
+    )
+    selected_date_range = None
+    order_dates = pd.to_datetime(expanded["orders_daily"]["order_date"], errors="coerce").dropna()
+    if not order_dates.empty:
+        selected_date_range = st.date_input(
+            "Order and traffic date range",
+            value=(order_dates.min().date(), order_dates.max().date()),
+            min_value=order_dates.min().date(),
+            max_value=order_dates.max().date(),
+        )
     st.divider()
-    st.caption("Segment gates: rating ≥ 4.2 and views ≥ 20.")
+    st.caption("Product segment gates: rating ≥ 4.2 and recorded view events ≥ 20.")
+    st.caption(
+        "Date filters apply to orders and traffic. Product filters apply to product, "
+        "traffic, and inventory views; customer-segment filters apply to customer analytics."
+    )
 
 filtered_products = apply_filters(
     products,
@@ -246,6 +283,26 @@ filtered_products = apply_filters(
     minimum_rating,
     selected_prices,
     selected_views,
+)
+if selected_categories and "category" in filtered_products:
+    filtered_products = filtered_products[
+        filtered_products["category"].astype(str).isin(selected_categories)
+    ]
+if selected_brands and "brand" in filtered_products:
+    filtered_products = filtered_products[
+        filtered_products["brand"].astype(str).isin(selected_brands)
+    ]
+
+st.markdown('<p class="eyebrow">Aislewise · Product intelligence</p>', unsafe_allow_html=True)
+st.title("See the catalog from every angle.")
+manifest = expanded["manifest"]
+st.caption(
+    f"Dataset: {manifest['dataset_version']} · "
+    f"{manifest['product_rows']:,} products · "
+    f"{manifest['source_table_rows']['retail_traffic.fact_glance_views']:,} traffic events · "
+    f"{manifest['source_table_rows']['retail_sales.fact_orders']:,} orders · "
+    f"{manifest['owner_reported_synthetic_addition_total']:,} recently added synthetic records. "
+    f"Extracted {manifest['extracted_at_utc']}. Traffic counts are events, not unique visitors."
 )
 
 if filtered_products.empty:
@@ -260,13 +317,55 @@ metric_columns = st.columns(4)
 metric_columns[0].metric("Products in view", format_number(len(filtered_products)))
 metric_columns[1].metric("Stars", format_number(stars_count))
 metric_columns[2].metric("At risk", format_number(at_risk_count))
-metric_columns[3].metric("Zero recorded views", format_number(zero_views_count))
+metric_columns[3].metric("Zero recorded view events", format_number(zero_views_count))
 
-overview_tab, products_tab, evidence_tab = st.tabs(
-    ["Portfolio overview", "Product explorer", "Saved visual reports"]
+(
+    overview_tab,
+    products_tab,
+    evidence_tab,
+    customers_tab,
+    sales_tab,
+    traffic_tab,
+    inventory_tab,
+    reviews_tab,
+    fulfillment_tab,
+    quality_tab,
+) = st.tabs(
+    [
+        "Executive overview",
+        "Product intelligence",
+        "Saved visual reports",
+        "Customer intelligence",
+        "Sales analytics",
+        "Traffic analytics",
+        "Inventory",
+        "Reviews & ratings",
+        "Fulfillment",
+        "Data quality",
+    ]
 )
 
 with overview_tab:
+    st.subheader("Executive snapshot")
+    overview_metrics = st.columns(3)
+    overview_metrics[0].metric(
+        "Units sold in filtered catalog",
+        format_number(int(pd.to_numeric(filtered_products["units_sold"]).sum())),
+    )
+    overview_metrics[1].metric(
+        "Item-line net revenue (source units)",
+        f"{pd.to_numeric(filtered_products['item_line_net_revenue']).sum():,.2f}",
+    )
+    overview_metrics[2].metric(
+        "Latest on-hand units",
+        format_number(
+            int(pd.to_numeric(filtered_products["latest_inventory_units"]).sum())
+        ),
+    )
+    st.caption(
+        "These catalog totals use the product filters and cover the full snapshot, not the "
+        "selected date range. Item-line net revenue is not profit; the source currency is unknown."
+    )
     st.subheader("Portfolio map")
     st.caption("Each dot is a product. Dashed lines mark the shared rating and traffic gates.")
     render_segment_chart(filtered_products)
@@ -312,51 +411,266 @@ with products_tab:
 
 with evidence_tab:
     st.subheader("Generated visual reports")
-    st.caption("These are the committed PNG outputs from the offline analytics workflow.")
+    st.caption("Charts are generated directly from the expanded analytical snapshot.")
     report_images = [
-        ("Portfolio segmentation", "SEGMENTATION.png"),
-        ("Product views distribution", "product_views_distribution.png"),
-        ("Product views boxplot", "product_views_boxplot.png"),
-        ("Price vs. product views", "product_price_vs_views.png"),
-        ("Product metric correlation", "product_metrics_correlation.png"),
+        ("Product portfolio segments", "product_segments.png"),
+        ("Category performance", "category_performance.png"),
+        ("Brand performance", "brand_performance.png"),
+        ("Sales trend", "sales_trend.png"),
+        ("Traffic trend", "traffic_trend.png"),
+        ("Inventory by fulfillment center", "inventory_by_center.png"),
+        ("Review ratings", "review_ratings.png"),
+        ("Units by discount band", "discount_units.png"),
     ]
+    expanded_visual_dir = VISUALS_PATH / "expanded"
     for index in range(0, len(report_images), 2):
         image_columns = st.columns(2)
         for column, (title, filename) in zip(image_columns, report_images[index : index + 2]):
-            image_path = VISUALS_PATH / filename
+            image_path = expanded_visual_dir / filename
             with column:
                 st.markdown(f"**{title}**")
                 if image_path.is_file():
                     st.image(str(image_path), width="stretch")
                 else:
-                    st.warning(f"Saved chart is not present in this deployment: {filename}")
+                    st.info(f"Run `python eda/visualisations/expanded.py` to generate {filename}.")
 
-    if REVIEW_PATH.is_file():
-        st.divider()
-        st.subheader("Review sample audit")
-        st.warning(
-            "This review extract contains synthetic demo text and ratings. "
-            "It is for validating the analytics workflow only—not evidence of real customer sentiment."
-        )
-        try:
-            review_sample = load_review_sample(str(REVIEW_PATH), REVIEW_PATH.stat().st_mtime)
-            st.metric("Synthetic review rows in sample", format_number(len(review_sample)))
-            if "individual_review_rating" in review_sample.columns:
-                review_counts = (
-                    review_sample["individual_review_rating"]
-                    .value_counts()
-                    .sort_index()
-                    .rename_axis("Synthetic rating")
-                    .reset_index(name="Review rows")
+with customers_tab:
+    st.subheader("Customer purchase behavior by segment")
+    if expanded is None:
+        st.info("Customer-level aggregates are available in the expanded snapshot.")
+    else:
+        customer_data = expanded["customer_segments"]
+        if selected_customer_segments:
+            customer_data = customer_data[
+                customer_data["customer_segment"].astype(str).isin(
+                    selected_customer_segments
                 )
-                st.bar_chart(review_counts, x="Synthetic rating", y="Review rows")
-            st.dataframe(review_sample.head(20), width="stretch", hide_index=True)
-        except (OSError, pd.errors.ParserError, ValueError) as error:
-            st.error(f"Could not load the synthetic review sample: {error}")
+            ]
+        customer_data = customer_data.copy()
+        customer_data["customer_count"] = pd.to_numeric(
+            customer_data["customer_count"], errors="raise"
+        )
+        customer_data["purchasers"] = pd.to_numeric(
+            customer_data["purchasers"], errors="raise"
+        )
+        customer_data["repeat_purchasers"] = pd.to_numeric(
+            customer_data["repeat_purchasers"], errors="raise"
+        )
+        metric_columns = st.columns(3)
+        metric_columns[0].metric(
+            "Customers in segments",
+            format_number(int(customer_data["customer_count"].sum())),
+        )
+        metric_columns[1].metric(
+            "Customers with non-cancelled orders",
+            format_number(int(customer_data["purchasers"].sum())),
+        )
+        metric_columns[2].metric(
+            "Repeat purchasers (2+ orders)",
+            format_number(int(customer_data["repeat_purchasers"].sum())),
+        )
+        st.bar_chart(
+            customer_data.set_index("customer_segment")[
+                ["customer_count", "purchasers", "repeat_purchasers"]
+            ]
+        )
+        st.caption(
+            "Repeat purchaser means at least two non-cancelled orders in this snapshot. "
+            "The dashboard only receives grouped counts; no customer IDs or contact data are exported."
+        )
+        st.dataframe(customer_data, hide_index=True, width="stretch")
+
+with sales_tab:
+    st.subheader("Sales and orders")
+    if expanded is None:
+        st.info("Order and sales aggregates are available in the expanded snapshot.")
+    else:
+        order_data = expanded["orders_daily"].copy()
+        order_data["order_date"] = pd.to_datetime(order_data["order_date"])
+        date_range = normalize_date_range(selected_date_range)
+        if date_range:
+            order_data = filter_dates(order_data, "order_date", date_range)
+        if not order_data.empty:
+            for column in (
+                "order_count",
+                "units_ordered",
+                "order_total_amount",
+                "item_line_net_revenue",
+            ):
+                order_data[column] = pd.to_numeric(order_data[column], errors="coerce").fillna(0)
+            metric_columns = st.columns(3)
+            metric_columns[0].metric(
+                "Orders",
+                format_number(int(order_data["order_count"].sum())),
+            )
+            metric_columns[1].metric(
+                "Units ordered",
+                format_number(int(order_data["units_ordered"].sum())),
+            )
+            metric_columns[2].metric(
+                "Item-line net revenue (source units)",
+                f"{order_data['item_line_net_revenue'].sum():,.2f}",
+            )
+            st.line_chart(
+                order_data.groupby("order_date")[["item_line_net_revenue"]].sum()
+            )
+            st.caption(
+                "Item-line net revenue is the source `net_revenue` sum; it is not profit. "
+                "`order_total_amount` is reported separately because it does not reconcile "
+                "to item lines for every order. Daily sales are catalog-wide because the "
+                "snapshot does not retain a date-by-product sales breakdown."
+            )
+            st.dataframe(
+                order_data.sort_values("order_date", ascending=False),
+                hide_index=True,
+                width="stretch",
+            )
+        else:
+            st.info("No orders fall within the selected date range.")
+
+with traffic_tab:
+    st.subheader("Recorded product traffic")
+    if expanded is None:
+        st.info("Traffic event aggregates are available in the expanded snapshot.")
+    else:
+        traffic_data = expanded["traffic_daily"].copy()
+        traffic_data["traffic_date"] = pd.to_datetime(traffic_data["traffic_date"])
+        date_range = normalize_date_range(selected_date_range)
+        if date_range:
+            traffic_data = filter_dates(traffic_data, "traffic_date", date_range)
+        selected_asins = set(filtered_products["asin"].astype(str))
+        traffic_data = traffic_data[traffic_data["asin"].astype(str).isin(selected_asins)]
+        if not traffic_data.empty:
+            traffic_data["view_events"] = pd.to_numeric(
+                traffic_data["view_events"], errors="raise"
+            )
+            metric_columns = st.columns(2)
+            metric_columns[0].metric(
+                "Recorded view events",
+                format_number(int(traffic_data["view_events"].sum())),
+            )
+            metric_columns[1].metric(
+                "Products with recorded events",
+                format_number(traffic_data["asin"].nunique()),
+            )
+            st.line_chart(
+                traffic_data.groupby("traffic_date")[["view_events"]].sum()
+            )
+            st.caption(
+                "A row is a recorded event, not a unique visitor. The source does not establish "
+                "a visitor population aligned to orders, so no conversion rate is calculated."
+            )
+            st.dataframe(
+                traffic_data.groupby("asin", as_index=False)["view_events"]
+                .sum()
+                .sort_values("view_events", ascending=False)
+                .head(100),
+                hide_index=True,
+                width="stretch",
+            )
+        else:
+            st.info("No traffic events match the active product and date filters.")
+
+with inventory_tab:
+    st.subheader("Inventory and stockout monitoring")
+    if expanded is None:
+        st.info("Inventory aggregates are available in the expanded snapshot.")
+    else:
+        inventory_data = filtered_products.copy()
+        inventory_data["latest_inventory_units"] = pd.to_numeric(
+            inventory_data["latest_inventory_units"], errors="coerce"
+        ).fillna(0)
+        stockouts = inventory_data["latest_inventory_units"].eq(0)
+        metric_columns = st.columns(3)
+        metric_columns[0].metric(
+            "Latest on-hand units",
+            format_number(int(inventory_data["latest_inventory_units"].sum())),
+        )
+        metric_columns[1].metric("Products stocked out", format_number(int(stockouts.sum())))
+        metric_columns[2].metric(
+            "Products represented",
+            format_number(len(inventory_data)),
+        )
+        centers = expanded["inventory_by_center"].sort_values(
+            "units_in_stock", ascending=False
+        )
+        st.bar_chart(centers.set_index("fc_name")[["units_in_stock"]])
+        st.dataframe(centers, hide_index=True, width="stretch")
+        st.caption(
+            "Stock is summed across fulfillment centers at each product's latest available "
+            "inventory snapshot, which may have different dates by product."
+        )
+
+with reviews_tab:
+    st.subheader("Ratings and review coverage")
+    if expanded is None:
+        st.info("Expanded review aggregates are available in the database snapshot.")
+    else:
+        st.warning(
+            "Review records are synthetic demo data. Reviewer identities and review text are "
+            "excluded from this dashboard and published dataset."
+        )
+        rating_data = expanded["review_rating_distribution"]
+        st.bar_chart(rating_data, x="review_rating", y="review_count")
+        review_products = filtered_products.loc[
+            filtered_products["review_count"].gt(0),
+            [
+                "asin",
+                "product_title",
+                "average_rating",
+                "review_count",
+                "average_review_rating",
+            ],
+        ].sort_values("review_count", ascending=False)
+        st.dataframe(review_products.head(100), hide_index=True, width="stretch")
+
+with fulfillment_tab:
+    st.subheader("Fulfillment center inventory footprint")
+    if expanded is None:
+        st.info("Fulfillment inventory aggregates are available in the expanded snapshot.")
+    else:
+        centers = expanded["inventory_by_center"].copy()
+        if not centers.empty:
+            centers["stockout_product_locations"] = pd.to_numeric(
+                centers["stockout_product_locations"], errors="coerce"
+            ).fillna(0)
+            st.bar_chart(
+                centers.set_index("fc_name")[["stockout_product_locations"]]
+            )
+            st.dataframe(centers, hide_index=True, width="stretch")
+        st.caption(
+            "Fulfillment data describes inventory snapshots by center. Orders do not contain a "
+            "verified fulfillment-center key, so order performance is not attributed to centers."
+        )
+
+with quality_tab:
+    st.subheader("Dataset quality and extraction manifest")
+    if expanded is None:
+        st.info("The expanded quality report is available with the expanded snapshot.")
+    else:
+        quality = expanded["quality"]
+        checks = pd.DataFrame(
+            [
+                {"check": check_name, "rows": count}
+                for check_name, count in quality["checks"].items()
+            ]
+        )
+        st.dataframe(checks, hide_index=True, width="stretch")
+        mismatch_count = quality["checks"].get(
+            "orders_total_vs_item_line_mismatches", 0
+        )
+        if mismatch_count:
+            st.warning(
+                f"{mismatch_count:,} orders differ by more than "
+                "0.02 source units between the order total "
+                "and summed item-line net revenue. This is a reconciliation finding, not "
+                "automatically a data error; the amount definitions need confirmation."
+            )
+        st.json(expanded["manifest"])
 
 st.divider()
 st.caption(
     "Aislewise is an independent portfolio demo. Sample data is not live or representative of actual "
-    "customer behavior; review data is synthetic. Product ratings and traffic should be validated "
-    "against aligned, authorized production sources before business decisions."
+    "customer behavior; generated review data is synthetic. No profit, unique-visitor count, or "
+    "conversion rate is inferred from incompatible or missing source populations."
 )

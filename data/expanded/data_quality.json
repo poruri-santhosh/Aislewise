@@ -1,0 +1,170 @@
+{
+  "checks": {
+    "cart_orphan_customer_or_product": 0,
+    "duplicate_cart_keys": 0,
+    "duplicate_customer_keys": 0,
+    "duplicate_fulfillment_center_keys": 0,
+    "duplicate_inventory_snapshot_keys": 0,
+    "duplicate_order_item_keys": 0,
+    "duplicate_order_keys": 0,
+    "duplicate_product_keys": 0,
+    "duplicate_review_keys": 0,
+    "duplicate_traffic_event_keys": 0,
+    "duplicate_wishlist_keys": 0,
+    "invalid_product_discounts_or_ratings": 0,
+    "invalid_product_prices_or_ratings": 0,
+    "inventory_orphan_product_or_center": 0,
+    "inventory_stockout_flag_mismatches": 136,
+    "negative_inventory_or_reservations": 0,
+    "order_items_orphan_order_or_product": 0,
+    "order_items_with_invalid_values": 0,
+    "order_orphan_customer": 0,
+    "orders_total_vs_item_line_mismatches": 875,
+    "orders_without_line_items": 0,
+    "products_without_category": 0,
+    "required_product_fields_missing": 0,
+    "review_orphan_product_or_customer": 0,
+    "review_ratings_out_of_range": 0,
+    "traffic_orphan_product_or_customer": 0,
+    "wishlist_orphan_customer_or_product": 0
+  },
+  "export_reconciliation": {
+    "customers_match_source": 5204,
+    "order_lines_match_source": 15480,
+    "orders_match_source": 8176,
+    "product_asins_unique": 8079,
+    "product_rows_match_source": 8079,
+    "reviews_match_source": 4280,
+    "shopping_intent_products_match_catalog": 8079,
+    "traffic_events_match_source": 40614
+  },
+  "observed_rows_across_extracted_tables": 107702,
+  "order_total_reconciliation": {
+    "interpretation": "Reported as a reconciliation exception. Order totals and line net revenue may use different business definitions; no profit or conversion rate is inferred.",
+    "orders_with_total_differing_from_item_line_net_revenue_over_0_02": 875
+  },
+  "owner_reported_synthetic_addition_total": 80000,
+  "owner_reported_synthetic_additions": {
+    "catalog.dim_products": 8000,
+    "catalog.dim_reviews": 4000,
+    "customers.cart_items": 2000,
+    "customers.dim_customers": 5000,
+    "customers.wishlists": 1950,
+    "fulfillment.dim_fulfillment_centers": 50,
+    "retail_inventory.fact_fba_inventory_daily": 5000,
+    "retail_sales.fact_order_items": 14000,
+    "retail_sales.fact_orders": 7000,
+    "retail_traffic.fact_glance_views": 33000
+  },
+  "persisted_outputs": {
+    "brand_performance.csv": 26,
+    "category_performance.csv": 30,
+    "customer_segments.csv": 6,
+    "discount_effectiveness.csv": 5,
+    "inventory_by_center.csv": 57,
+    "orders_daily.csv": 4242,
+    "product_performance.csv": 8079,
+    "product_sales.csv": 8067,
+    "product_segmentation_recommendations.csv": 8079,
+    "products.csv": 8079,
+    "review_rating_distribution.csv": 5,
+    "reviews_by_product.csv": 4079,
+    "shopping_intent_by_product.csv": 8079,
+    "traffic_daily.csv": 33405
+  },
+  "privacy": {
+    "customer_ids_exported": false,
+    "emails_or_addresses_exported": false,
+    "order_ids_or_tracking_numbers_exported": false,
+    "reviewer_names_or_text_exported": false,
+    "traffic_is_event_count_not_unique_visitors": true
+  },
+  "source_table_rows": {
+    "catalog.dim_products": 8079,
+    "catalog.dim_reviews": 4280,
+    "customers.cart_items": 2151,
+    "customers.dim_customers": 5204,
+    "customers.wishlists": 2071,
+    "fulfillment.dim_fulfillment_centers": 57,
+    "retail_inventory.fact_fba_inventory_daily": 21590,
+    "retail_sales.fact_order_items": 15480,
+    "retail_sales.fact_orders": 8176,
+    "retail_traffic.fact_glance_views": 40614
+  },
+  "validated_schema_columns": {
+    "catalog.dim_categories": [
+      "category_id",
+      "category_name",
+      "department"
+    ],
+    "catalog.dim_products": [
+      "asin",
+      "brand",
+      "category_id",
+      "discount_percent",
+      "original_price",
+      "product_title",
+      "rating",
+      "rating_count",
+      "standard_price"
+    ],
+    "catalog.dim_reviews": [
+      "asin",
+      "customer_id",
+      "rating",
+      "review_id"
+    ],
+    "customers.cart_items": [
+      "asin",
+      "customer_id",
+      "is_saved_for_later",
+      "quantity"
+    ],
+    "customers.dim_customers": [
+      "customer_id",
+      "customer_segment"
+    ],
+    "customers.wishlists": [
+      "asin",
+      "customer_id"
+    ],
+    "fulfillment.dim_fulfillment_centers": [
+      "city",
+      "country",
+      "fc_name",
+      "fulfillment_center_id",
+      "state"
+    ],
+    "retail_inventory.fact_fba_inventory_daily": [
+      "asin",
+      "fulfillment_center_id",
+      "out_of_stock_flag",
+      "snapshot_date",
+      "units_in_stock",
+      "units_reserved"
+    ],
+    "retail_sales.fact_order_items": [
+      "asin",
+      "net_revenue",
+      "order_id",
+      "order_item_id",
+      "ordered_units"
+    ],
+    "retail_sales.fact_orders": [
+      "customer_id",
+      "order_id",
+      "order_status",
+      "order_timestamp",
+      "payment_method",
+      "total_amount"
+    ],
+    "retail_traffic.fact_glance_views": [
+      "asin",
+      "customer_id",
+      "estimated_delivery_days",
+      "is_buy_box_winner",
+      "view_id",
+      "view_timestamp"
+    ]
+  }
+}

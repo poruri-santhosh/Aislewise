@@ -1,0 +1,31 @@
+category,department,product_count,traffic_events,units_sold,item_line_net_revenue,mean_product_rating,latest_inventory_units
+Laptops,Electronics,6,201,90,6074910.0,4.45,2162
+Home & Kitchen,Home,800,3300,2799,2071696.159999996,3.700000000000007,116713
+Computers,Electronics,800,3300,2799,2071211.0900000038,3.6991250000000067,117444
+Grocery,Grocery,800,3300,2801,2071162.9,3.7008750000000066,115521
+Electronics,Electronics,800,3300,2801,2070359.9700000072,3.7008750000000066,116190
+Books,Media,800,3300,2800,2068943.7000000074,3.6991250000000067,118367
+Beauty,Beauty,800,3300,2800,2068267.7,3.700000000000007,118136
+Automotive,Automotive,800,3300,2801,2067485.8299999924,3.6991250000000067,120290
+Sports & Outdoors,Sports,800,3300,2799,2065766.0199999928,3.7008750000000066,117300
+Clothing,Fashion,800,3300,2800,2064979.699999996,3.7008750000000066,118910
+Toys & Games,Toys,800,3300,2801,2064848.760000004,3.700000000000007,119080
+Mobiles,Electronics,6,199,90,1597410.0,3.85,940
+Smartphones,Electronics,3,5606,868,783591.3200000001,4.699999999999999,1077
+Kitchen,Home,6,200,90,535410.0,3.9166666666666665,1916
+Home Appliances,Home,6,200,94,474906.0,4.6499999999999995,2114
+Gaming,Electronics,6,200,90,373410.0,3.85,1889
+Audio,Electronics,6,202,94,271306.0,4.25,2142
+Personal Care,Personal Care,6,200,90,263160.0,4.45,2484
+Accessories,Electronics,6,200,90,186660.0,4.05,1946
+Fashion,Fashion,6,199,90,161910.0,4.25,1775
+Books,Books,6,200,92,122858.0,4.583333333333333,1954
+Laptops & Tablets,Computers,2,0,2,2998.0,4.65,885
+Headphones & Audio,Electronics,2,0,4,1233.99,4.8,1041
+Computer Accessories,Computers,2,0,2,199.98,4.75,873
+Books & Audiobooks,Books,2,5,1,14.99,4.8,881
+Watches & Accessories,Fashion,1,0,0,0.0,4.7,475
+Personal Care & Beauty,Beauty & Personal Care,2,0,0,0.0,4.7,856
+Home Decor & Cleaning,Home & Kitchen,1,0,0,0.0,4.6,430
+Kitchen Appliances,Home & Kitchen,2,2,0,0.0,4.8,852
+Footwear & Shoes,Fashion,2,0,0,0.0,4.6,813
