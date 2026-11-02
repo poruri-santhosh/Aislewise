@@ -1,10 +1,20 @@
-# Amazon Clone | Full-Stack Storefront & Product Analytics
+# Aislewise
 
-A full-stack e-commerce learning project that combines an interactive Amazon-inspired storefront with a PostgreSQL-backed product catalog and a separate Python analytics workflow. The project demonstrates how application data can be extracted into CSV, explored with Pandas, segmented into business groups, and presented as visual reports.
+### Commerce that feels effortless. Insights that move inventory.
 
-> **Portfolio/demo project:** this is an independent educational project and is not affiliated with Amazon. The review records in the included analytics sample are synthetic demo data, not verified customer feedback.
+**Aislewise** is the working product identity for an integrated shopping and retail-insights experience. It brings a browsable storefront, inventory-aware shopping flows, and a practical product analytics pipeline together in one cohesive application.
 
-## Project at a glance
+> **A product concept, built to demonstrate the full journey:** help shoppers discover products, give operators useful signals about catalog performance, and connect the experience to real application data.
+
+| Explore | Understand | Improve |
+|---|---|---|
+| Search, compare, and shop in a responsive storefront | Connect catalog, inventory, and product-view data | Turn repeatable analysis into clear portfolio insights |
+
+**[Open the hosted demo](https://amazon-clone-qcf3bfs86-porurisanthosh674-5041.vercel.app)** · **Built with Flask, PostgreSQL, and Python analytics**
+
+> **Independent demo:** Aislewise is not affiliated with or endorsed by Amazon. The current storefront is an Amazon-inspired prototype, not a production retail service. Sample reviews are synthetic demo data, not verified customer feedback. “Aislewise” is a working name; verify name and trademark availability before commercial use.
+
+## Product capabilities
 
 | Layer | Technology | Purpose |
 |---|---|---|
@@ -13,41 +23,104 @@ A full-stack e-commerce learning project that combines an interactive Amazon-ins
 | Database | PostgreSQL on Neon | Persistent catalog, customer, traffic, review, inventory, and order data |
 | Analytics | Python, Pandas, Matplotlib | CSV extraction, data-quality checks, EDA, portfolio segmentation, and charts |
 
-## Storefront capabilities
-
 - Search, autocomplete, category filters, sorting, and product detail views
 - Product ratings, customer reviews, and review submission
 - Session-aware account flows, demo account, cart, saved items, and wishlist
 - Checkout, delivery options, order history, and package tracking
 - Customer support interface and responsive storefront layout
+- A Python analytics workflow for product traffic, portfolio segmentation, and visual reporting
 
-## Application and analytics data flow
+## Architecture
 
-The web application and the analytics workflow use the same Neon database for different purposes:
+### Commerce application
 
-```text
-Browser
-  │  HTTP requests
-  ▼
-Flask application (app.py)
-  │  parameterized PostgreSQL queries
-  ▼
-Neon PostgreSQL ───────────────────────────────────────┐
-  │                                                    │
-  │ analytics export scripts                           │ storefront reads/writes
-  ▼                                                    │
-data/raw/product_views_analysis.csv                    │
-  │                                                    │
-  ├── Pandas EDA: quality, distributions, outliers     │
-  ├── portfolio gates: rating ≥ 4.2, views ≥ 20        │
-  └── processed CSVs + Matplotlib PNG charts           │
-                                                       ▼
-                                                Storefront APIs
+The storefront runs as a Flask application on Vercel. PostgreSQL on Neon is the source of truth for catalog, customer, inventory, traffic, and order data. Jinja templates render the web experience; the browser calls Flask routes for catalog and shopping actions.
+
+```mermaid
+flowchart LR
+    shopper["Shopper<br/>Web browser"] -->|HTTPS| vercel["Vercel<br/>deployment + routing"]
+    vercel -->|Page and API requests| flask["Flask application<br/>app.py"]
+    flask -->|Render| templates["Jinja templates<br/>templates/index.html"]
+    templates -->|HTML and JavaScript| shopper
+    flask -->|Parameterized SQL<br/>psycopg2 + TLS| postgres[("Neon PostgreSQL")]
+
+    subgraph appdata["Application data"]
+        catalog["catalog<br/>products, categories, reviews"]
+        customers["customers<br/>profiles, carts, wishlists"]
+        inventory["retail_inventory<br/>daily stock snapshots"]
+        sales["retail_sales<br/>orders and order items"]
+        traffic["retail_traffic<br/>product-view events"]
+    end
+    postgres --- catalog
+    postgres --- customers
+    postgres --- inventory
+    postgres --- sales
+    postgres --- traffic
+
+    classDef experience fill:#eaf3ff,stroke:#3674b5,color:#14385a,stroke-width:1.5px
+    classDef service fill:#f2ecff,stroke:#7953b5,color:#38215b,stroke-width:1.5px
+    classDef storage fill:#e7f7f1,stroke:#23836a,color:#164b3c,stroke-width:1.5px
+    class shopper,templates experience
+    class vercel,flask service
+    class postgres,catalog,customers,inventory,sales,traffic storage
 ```
 
-The raw product CSV is an analytics snapshot, not the application's live database. The export script aggregates catalog products with glance-view traffic. The review export joins product, traffic, and review data to produce an at-risk review extract. Pandas reads these CSV snapshots for repeatable analysis; segmentation and chart scripts then write derived datasets and images to their own folders.
+### Product intelligence pipeline
 
-The current sample contains **79 products** and the following fields in the raw product export: `asin`, `product_title`, `total_views`, `average_rating`, and `standard_price`. The sample review export is synthetic and should be treated as demonstration data only.
+Analytics is an offline, reproducible workflow—not a request-time dependency of the storefront. Export scripts take database snapshots to CSV; Pandas analysis writes derived datasets, findings, and charts.
+
+```mermaid
+flowchart LR
+    db[("Neon PostgreSQL<br/>catalog + views + reviews")] -->|Explicit export scripts| raw["Raw CSV snapshots<br/>data/raw/"]
+    raw --> quality["Data quality checks<br/>completeness + distributions"]
+    raw --> portfolio["Portfolio analysis<br/>rating and view segments"]
+    raw --> reviews["Review analysis<br/>at-risk sample"]
+    quality --> derived["Processed insights<br/>data/processed/"]
+    portfolio --> derived
+    reviews --> derived
+    quality --> charts["Visual reports<br/>reports/visualisations/"]
+    portfolio --> charts
+    derived --> report["Executive summary<br/>reports/PROJECT_SUMMARY_REPORT.md"]
+    charts --> report
+
+    classDef source fill:#e7f7f1,stroke:#23836a,color:#164b3c,stroke-width:1.5px
+    classDef process fill:#eaf3ff,stroke:#3674b5,color:#14385a,stroke-width:1.5px
+    classDef output fill:#fff3df,stroke:#c47b16,color:#65400c,stroke-width:1.5px
+    class db,raw source
+    class quality,portfolio,reviews process
+    class derived,charts,report output
+```
+
+The raw product CSV is an analytics snapshot, not the application's live database. The product export combines catalog and glance-view data; the review export joins product, traffic, and review data. Pandas reads these snapshots for repeatable analysis. The included sample has **79 products** and fields `asin`, `product_title`, `total_views`, `average_rating`, and `standard_price`.
+
+### Inventory-aware checkout
+
+Stock is read from the latest inventory snapshot for each product. Checkout locks the matching snapshot rows, checks requested quantities, and records the stock decrement and order in the same database transaction.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Shopper
+    participant UI as Storefront
+    participant App as Flask application
+    participant DB as Neon PostgreSQL
+    Shopper->>UI: Add item and submit checkout
+    UI->>App: POST checkout request
+    App->>DB: Begin transaction; lock latest inventory rows
+    DB-->>App: Available units by fulfillment center
+    alt Enough units available
+        App->>DB: Decrement stock and create order/items
+        DB-->>App: Commit transaction
+        App-->>UI: Order confirmation
+        UI-->>Shopper: Show confirmation
+    else Insufficient stock
+        App->>DB: Roll back transaction
+        App-->>UI: Return insufficient-stock response
+        UI-->>Shopper: Explain availability
+    end
+```
+
+The current sample review export is synthetic demo data and should be treated as an example dataset, not verified customer feedback.
 
 ### Analytics visuals
 
@@ -77,7 +150,7 @@ The correlation heatmap and scatter plot summarize linear association in this da
 
 See the [executive EDA report](reports/PROJECT_SUMMARY_REPORT.md) for findings, segment counts, review-audit caveats, and recommended actions.
 
-## Database overview
+## Data model
 
 The schema is defined in [`schema.sql`](schema.sql). The application and analysis scripts use these logical areas:
 
@@ -95,6 +168,7 @@ The schema is defined in [`schema.sql`](schema.sql). The application and analysi
 ```text
 .
 ├── app.py                         # Flask application
+├── vercel.json                    # Vercel function configuration
 ├── templates/
 │   └── index.html                 # Storefront UI
 ├── data/
@@ -112,7 +186,7 @@ The schema is defined in [`schema.sql`](schema.sql). The application and analysi
 └── requirements-eda.txt          # Analytics dependencies
 ```
 
-## Local setup
+## Run it locally
 
 ### 1. Requirements
 
@@ -204,17 +278,38 @@ python test_suite.py
 
 The integration tests require the database to be configured and seeded.
 
-## Deployment preparation
+## Deploy to Vercel
 
-The app is structured for a Flask deployment and has previously been hosted on Vercel. Before deploying a fresh environment:
+The repository root is the Vercel project root. Vercel detects the Flask application exported as `app` from `app.py`; `vercel.json` ensures the Jinja templates are included in the function bundle. Do not set the Vercel Root Directory to `api` or install `requirements-eda.txt` for the storefront.
 
-1. Create/configure the PostgreSQL database and apply `schema.sql`.
-2. Configure `DATABASE_URL` and a strong, unique `FLASK_SECRET_KEY` in the host's production environment settings.
-3. Confirm the required database tables and demo/catalog records exist.
-4. Deploy from the GitHub repository and verify the production build and database connectivity in the host's logs.
+### Configure the project
+
+1. Create/configure the PostgreSQL database and apply `schema.sql`. Seed it with `python seed_data.py` if it does not already contain the catalog and demo records.
+2. In the Vercel project, set these **Production** environment variables under **Settings → Environment Variables**:
+   - `DATABASE_URL`: the PostgreSQL/Neon connection URL. Use a URL reachable from Vercel and allow SSL; the app connects with `sslmode=require`.
+   - `FLASK_SECRET_KEY`: a long, random secret unique to this deployment. Generate one with `python -c "import secrets; print(secrets.token_hex(32))"`.
+3. If deploying from Git, import the repository `poruri-santhosh/AMAZON-CLONE` and leave **Root Directory** at the repository root (the default). Leave the Framework Preset on automatic detection and do not add a custom build command.
+
+The app intentionally fails during Vercel startup if `FLASK_SECRET_KEY` is missing. If database configuration is missing or incorrect, storefront requests cannot load; verify `DATABASE_URL`, the schema, and database connectivity before deploying.
+
+### Deploy from the terminal
+
+Run these commands from the repository root after installing the storefront dependencies:
+
+```powershell
+python -m pip install -r requirements.txt
+vercel login
+vercel link
+vercel
+vercel --prod
+```
+
+During `vercel link`, select the existing `porurisanthosh674-5041/amazon-clone` project. Configure the environment variables in the Vercel dashboard before promoting a deployment to production. To test a preview deployment (`vercel`) against the database, add the variables to the Preview environment too; use a development database there when possible. Check the homepage and `/api/products` before running `vercel --prod`. Each deployment needs the correct environment variables enabled for its target environment.
+
+After deployment, verify the homepage and `/api/products`. Confirm product availability against the latest inventory snapshot in the configured database. Do not commit `.env` or paste database credentials into source files or chat.
 
 Do not commit environment secrets. The analytics CSV snapshots and report images are committed as project/demo assets; refresh them only from a database you are authorized to query.
 
-## License and attribution
+## Brand and attribution
 
-This repository is an educational Amazon-inspired clone. Amazon and related marks belong to their respective owners. Add a license before reusing or distributing the code if a specific license is intended.
+Aislewise is the working product identity used in this README; it does not change the current storefront UI branding. The interface is an independent Amazon-inspired demonstration and is not affiliated with Amazon. Amazon and other third-party names and marks belong to their respective owners. Review the included assets and data before any public or commercial launch, and add an appropriate license before redistributing this code.

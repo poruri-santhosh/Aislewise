@@ -163,7 +163,12 @@ def index():
                     FROM catalog.dim_products p
                     LEFT JOIN catalog.dim_categories c ON c.category_id = p.category_id
                     LEFT JOIN retail_inventory.fact_fba_inventory_daily i
-                        ON i.asin = p.asin AND i.snapshot_date = CURRENT_DATE
+                        ON i.asin = p.asin
+                        AND i.snapshot_date = (
+                            SELECT MAX(inventory.snapshot_date)
+                            FROM retail_inventory.fact_fba_inventory_daily inventory
+                            WHERE inventory.asin = p.asin
+                        )
                     GROUP BY p.asin, p.product_title, p.brand, p.standard_price, p.original_price,
                              p.discount_percent, p.rating, p.rating_count, p.image_url,
                              p.is_prime_eligible, p.is_best_seller, p.is_amazons_choice,
@@ -232,7 +237,12 @@ def get_products():
         FROM catalog.dim_products p
         LEFT JOIN catalog.dim_categories c ON c.category_id = p.category_id
         LEFT JOIN retail_inventory.fact_fba_inventory_daily i
-            ON i.asin = p.asin AND i.snapshot_date = CURRENT_DATE
+            ON i.asin = p.asin
+            AND i.snapshot_date = (
+                SELECT MAX(inventory.snapshot_date)
+                FROM retail_inventory.fact_fba_inventory_daily inventory
+                WHERE inventory.asin = p.asin
+            )
         WHERE 1=1
     """
     params = []
@@ -346,7 +356,12 @@ def get_product_detail(asin: str):
                     FROM catalog.dim_products p
                     LEFT JOIN catalog.dim_categories c ON c.category_id = p.category_id
                     LEFT JOIN retail_inventory.fact_fba_inventory_daily i
-                        ON i.asin = p.asin AND i.snapshot_date = CURRENT_DATE
+                        ON i.asin = p.asin
+                        AND i.snapshot_date = (
+                            SELECT MAX(inventory.snapshot_date)
+                            FROM retail_inventory.fact_fba_inventory_daily inventory
+                            WHERE inventory.asin = p.asin
+                        )
                     WHERE p.asin = %s
                     GROUP BY p.asin, p.product_title, p.brand, p.standard_price, p.original_price,
                              p.discount_percent, p.rating, p.rating_count, p.image_url,
@@ -509,7 +524,12 @@ def get_cart():
                     FROM customers.cart_items c
                     JOIN catalog.dim_products p ON p.asin = c.asin
                     LEFT JOIN retail_inventory.fact_fba_inventory_daily i
-                        ON i.asin = p.asin AND i.snapshot_date = CURRENT_DATE
+                        ON i.asin = p.asin
+                        AND i.snapshot_date = (
+                            SELECT MAX(inventory.snapshot_date)
+                            FROM retail_inventory.fact_fba_inventory_daily inventory
+                            WHERE inventory.asin = p.asin
+                        )
                     WHERE c.customer_id = %s
                     GROUP BY c.cart_item_id, c.asin, c.quantity, c.is_saved_for_later,
                              p.product_title, p.standard_price, p.image_url, p.brand,
@@ -891,28 +911,33 @@ def checkout():
                 # Verify and decrement inventory for each item
                 for item in checkout_items:
                     cur.execute("""
-                        SELECT fulfillment_center_id, units_in_stock
+                        SELECT snapshot_date, fulfillment_center_id, units_in_stock
                         FROM retail_inventory.fact_fba_inventory_daily
-                        WHERE snapshot_date = CURRENT_DATE AND asin = %s
+                        WHERE asin = %s
+                          AND snapshot_date = (
+                              SELECT MAX(inventory.snapshot_date)
+                              FROM retail_inventory.fact_fba_inventory_daily inventory
+                              WHERE inventory.asin = %s
+                          )
                         FOR UPDATE
-                    """, (item["asin"],))
+                    """, (item["asin"], item["asin"]))
                     inv_rows = cur.fetchall()
-                    total_available = sum(r[1] for r in inv_rows)
+                    total_available = sum(r[2] for r in inv_rows)
 
                     if total_available < item["units"]:
                         return api_error(f"Insufficient stock for '{item['title']}'. Only {total_available} left.", 409)
 
                     # Decrement inventory
                     remaining_to_deduct = item["units"]
-                    for fc_id, stock in inv_rows:
+                    for snapshot_date, fc_id, stock in inv_rows:
                         deduct = min(stock, remaining_to_deduct)
                         if deduct > 0:
                             cur.execute("""
                                 UPDATE retail_inventory.fact_fba_inventory_daily
                                 SET units_in_stock = units_in_stock - %s,
                                     out_of_stock_flag = (units_in_stock - %s <= 0)
-                                WHERE snapshot_date = CURRENT_DATE AND asin = %s AND fulfillment_center_id = %s
-                            """, (deduct, deduct, item["asin"], fc_id))
+                                WHERE snapshot_date = %s AND asin = %s AND fulfillment_center_id = %s
+                            """, (deduct, deduct, snapshot_date, item["asin"], fc_id))
                             remaining_to_deduct -= deduct
                         if remaining_to_deduct == 0:
                             break
@@ -1092,8 +1117,13 @@ def cancel_order(order_id: str):
                         UPDATE retail_inventory.fact_fba_inventory_daily
                         SET units_in_stock = units_in_stock + %s,
                             out_of_stock_flag = FALSE
-                        WHERE snapshot_date = CURRENT_DATE AND asin = %s
-                    """, (units, asin))
+                        WHERE asin = %s
+                          AND snapshot_date = (
+                              SELECT MAX(inventory.snapshot_date)
+                              FROM retail_inventory.fact_fba_inventory_daily inventory
+                              WHERE inventory.asin = %s
+                          )
+                    """, (units, asin, asin))
 
                 cur.execute("""
                     UPDATE retail_sales.fact_orders
@@ -1341,10 +1371,15 @@ def view_product():
                 cur.execute("""
                     SELECT COALESCE(SUM(units_in_stock), 0)
                     FROM retail_inventory.fact_fba_inventory_daily
-                    WHERE asin = %s AND snapshot_date = CURRENT_DATE
-                """, (asin,))
+                    WHERE asin = %s
+                      AND snapshot_date = (
+                          SELECT MAX(inventory.snapshot_date)
+                          FROM retail_inventory.fact_fba_inventory_daily inventory
+                          WHERE inventory.asin = %s
+                      )
+                """, (asin, asin))
                 row = cur.fetchone()
-                in_stock = (row[0] > 0) if row else True
+                in_stock = (row[0] > 0) if row else False
                 delivery_days = 1 if in_stock else 5
 
                 cur.execute("""
