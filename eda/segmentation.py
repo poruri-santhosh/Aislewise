@@ -8,6 +8,7 @@ sys.path.append(
 )
 import matplotlib.pyplot as plt
 import pandas as pd
+from portfolio import HIGH_RATING, HIGH_TRAFFIC_VIEWS
 
 csv_path = os.path.join(
     os.path.dirname(__file__),
@@ -47,8 +48,8 @@ for segment, color in palette.items():
         )
 
 # Exact business logic gates used in your segmentation script
-RATING_GATE = 4.2
-TRAFFIC_GATE = 20.0
+RATING_GATE = HIGH_RATING
+TRAFFIC_GATE = HIGH_TRAFFIC_VIEWS
 
 plt.axvline(
     x=RATING_GATE,

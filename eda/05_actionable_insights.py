@@ -9,27 +9,15 @@ sys.path.append(
 )
 import pandas as pd
 from data_loader import load_data
+from portfolio import classify_product
 
 df = load_data()
 
-
-# 1. Segment the products based on business thresholds
-def assign_segment(row):
-    # Thresholds: views >= 20 for high traffic, rating >= 4.2 for high quality
-    high_views = row["total_views"] >= 20
-    high_rating = row["average_rating"] >= 4.2
-
-    if high_views and high_rating:
-        return "Stars (High Traffic, High Rating)"
-    elif not high_views and high_rating:
-        return "Hidden Gems (Low Traffic, High Rating)"
-    elif high_views and not high_rating:
-        return "At Risk (High Traffic, Low Rating)"
-    else:
-        return "Dead Weight (Low Traffic, Low Rating)"
-
-
-df["segment"] = df.apply(assign_segment, axis=1)
+# 1. Segment the products using the shared, tested business thresholds.
+df["segment"] = df.apply(
+    lambda row: classify_product(row["total_views"], row["average_rating"]),
+    axis=1,
+)
 
 # 2. Print Segment Counts
 print("=" * 65)

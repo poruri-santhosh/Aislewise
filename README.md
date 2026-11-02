@@ -83,9 +83,9 @@ flowchart LR
     derived --> report["Executive summary<br/>reports/PROJECT_SUMMARY_REPORT.md"]
     charts --> report
 
-    classDef source fill:#e7f7f1,stroke:#23836a,color:#164b3c,stroke-width:1.5px
-    classDef process fill:#eaf3ff,stroke:#3674b5,color:#14385a,stroke-width:1.5px
-    classDef output fill:#fff3df,stroke:#c47b16,color:#65400c,stroke-width:1.5px
+    classDef source fill:#e7f7f1,stroke:#23836a,color:#164b3c
+    classDef process fill:#eaf3ff,stroke:#3674b5,color:#14385a
+    classDef output fill:#fff3df,stroke:#c47b16,color:#65400c
     class db,raw source
     class quality,portfolio,reviews process
     class derived,charts,report output
@@ -99,28 +99,49 @@ Stock is read from the latest inventory snapshot for each product. Checkout lock
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Shopper
-    participant UI as Storefront
-    participant App as Flask application
-    participant DB as Neon PostgreSQL
-    Shopper->>UI: Add item and submit checkout
-    UI->>App: POST checkout request
-    App->>DB: Begin transaction; lock latest inventory rows
-    DB-->>App: Available units by fulfillment center
-    alt Enough units available
-        App->>DB: Decrement stock and create order/items
-        DB-->>App: Commit transaction
-        App-->>UI: Order confirmation
-        UI-->>Shopper: Show confirmation
-    else Insufficient stock
-        App->>DB: Roll back transaction
-        App-->>UI: Return insufficient-stock response
-        UI-->>Shopper: Explain availability
+    participant Shopper
+    participant Storefront
+    participant Flask
+    participant Database
+    Shopper->>Storefront: Submit checkout
+    Storefront->>Flask: POST checkout
+    Flask->>Database: Lock latest inventory rows
+    Database-->>Flask: Available units
+    alt Stock is sufficient
+        Flask->>Database: Decrement stock and create order
+        Flask->>Database: Commit transaction
+        Database-->>Flask: Order saved
+        Flask-->>Storefront: Order confirmation
+        Storefront-->>Shopper: Show confirmation
+    else Stock is insufficient
+        Flask-->>Storefront: Return stock error
+        Storefront-->>Shopper: Explain availability
     end
 ```
 
 The current sample review export is synthetic demo data and should be treated as an example dataset, not verified customer feedback.
+
+### What the sample says
+
+These are reproducible findings from [`data/raw/product_views_analysis.csv`](data/raw/product_views_analysis.csv), a 79-product sample snapshot—not live sales, verified customer behavior, or a complete inventory feed. The segmentation thresholds are inclusive: **high traffic ≥ 20 views** and **high rating ≥ 4.2**.
+
+| Sample finding | Evidence | Suggested operator action |
+|---|---|---|
+| At Risk | 27 products have at least 20 recorded views and a product-level rating below 4.2. Studio Headphones Model 16 is rated 3.5 with 33 views. | Audit listing accuracy, quality signals, and feedback before increasing promotion. Individual review data is synthetic and must not be treated as customer evidence. |
+| Hidden Gems | 17 products meet the rating gate but have fewer than 20 recorded views. The MacBook Air sample row is rated 4.9 with 0 recorded views. | Validate event coverage and ASIN joins first; then consider a measured discoverability experiment. |
+| Stars | 35 products meet both gates. The iPhone 15 Pro Max has 2,803 views and a 4.8 product-level rating. | Protect availability and listing quality; test cross-sell opportunities. |
+| No recorded views | 15 products have zero views in this extract. | Investigate tracking, reporting period, and catalog visibility before inferring no demand. |
+| Price is not a useful single lever in this sample | The report's price–views Pearson correlation is −0.0571. This is descriptive association, not causation. | Test merchandising and discovery changes instead of assuming price reductions will lift traffic. |
+
+Inventory quantities, conversion, revenue, and returns are not columns in this CSV, so this snapshot cannot identify specific inventory shortages or prove the effect of a business action. See the [EDA report](reports/PROJECT_SUMMARY_REPORT.md) for additional methodology, review-sample caveats, and limitations.
+
+### Walkthrough
+
+1. Open the [hosted storefront](https://amazon-clone-qcf3bfs86-porurisanthosh674-5041.vercel.app) and explore search, category filters, and a product detail page. Checkout availability depends on the hosted database's current inventory.
+2. Follow the [local setup](#run-it-locally) to seed a database you control, then try cart, wishlist, and checkout flows with that demo data.
+3. Review the [portfolio segmentation chart](reports/visualisations/SEGMENTATION.png), [traffic distribution](reports/visualisations/product_views_distribution.png), and [executive findings](reports/PROJECT_SUMMARY_REPORT.md).
+
+No screen-recorded product demo is currently included; this walkthrough is a repeatable click-through guide rather than a claim that a video exists.
 
 ### Analytics visuals
 
@@ -175,8 +196,11 @@ The schema is defined in [`schema.sql`](schema.sql). The application and analysi
 │   ├── raw/                       # Source analytics CSV snapshot
 │   └── processed/                 # Segmentation and review CSV outputs
 ├── eda/
+│   ├── portfolio.py               # Shared, tested segmentation rules
 │   ├── visualisations/            # Chart-generation scripts
 │   └── *.py                       # EDA, exports, and portfolio analysis
+├── tests/
+│   └── test_analytics_snapshot.py # Offline analytics tests (no database)
 ├── reports/
 │   ├── visualisations/            # Generated PNG charts embedded above
 │   └── PROJECT_SUMMARY_REPORT.md  # Executive analysis report
@@ -273,10 +297,18 @@ Outputs:
 ### 6. Tests
 
 ```powershell
+python -m unittest discover -s tests -v
+```
+
+The offline analytics suite currently has **5 automated tests**. It checks the checked-in snapshot's schema and 79-row size, unique product IDs and valid metrics, inclusive segment-threshold edge cases, expected segment totals (35 Stars, 17 Hidden Gems, 27 At Risk, 0 Dead Weight), and the handling of zero-view/high-rating products. These tests read the local CSV and do not require a database.
+
+The separate [`test_suite.py`](test_suite.py) contains **13 database integration checks** for storefront, catalog, search, cart, wishlist, customer updates, reviews, checkout, orders, and cancellation. It writes customer, cart, review, order, and inventory data; run it only against a disposable, seeded development database, never production:
+
+```powershell
 python test_suite.py
 ```
 
-The integration tests require the database to be configured and seeded.
+The integration checks have not been run as part of this README update. No pass/fail result is claimed for them.
 
 ## Deploy to Vercel
 
